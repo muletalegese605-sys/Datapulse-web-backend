@@ -1,4 +1,3 @@
-annotated-doc==0.0.5
 annotated-types==0.8.0
 anyio==4.15.1
 blinker==1.9.0
@@ -10,7 +9,6 @@ cryptography==50.0.1
 distro==1.9.0
 fastapi==0.141.1
 feedparser==6.0.14
-feedparser-sgmllib==2.1.0
 Flask==3.1.3
 flask-cors==6.0.5
 google-auth==2.58.0
@@ -22,10 +20,8 @@ idna==3.19
 itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.3
-maturin==1.15.0
-numpy @ file:///home/builder/.termux-build/python-numpy/src/dist/numpy-2.4.4-cp314-cp314-android_aarch64.whl#sha256=68ef31f0d8925d96da2b5e014c2c3d32a16dd68887329eeecb7f3a548222e24d
-packaging==26.3
-pandas @ file:///home/builder/.termux-build/python-pandas/src/dist/pandas-3.0.5-cp314-cp314-android_aarch64.whl#sha256=2a35f0521e37d4736d43c1be8e440673d00f1d929bf5bc07090d0d6519e987bd
+numpy
+pandas
 pyasn1==0.6.4
 pyasn1_modules==0.4.2
 pycparser==3.0
@@ -35,7 +31,6 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.2.3
 python-multipart==0.0.32
 requests==2.34.2
-setuptools==84.0.0
 six==1.17.0
 sniffio==1.3.1
 starlette==1.6.0
@@ -46,4 +41,3 @@ urllib3==2.7.0
 uvicorn==0.52.4
 websockets==16.1.1
 Werkzeug==3.1.8
-wheel==0.48.0
