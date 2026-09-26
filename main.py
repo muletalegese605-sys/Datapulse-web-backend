@@ -8,7 +8,7 @@ app = FastAPI(title="DataPulse Backend", version="1.0.0")
 # CORS: Frontend kee (Firebase) akka walqabatu hayyami
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Yeroo ammaa hundi hayyamame; booda URL kee qofa galchi
+    allow_origins=["*"],  # Yeroo ammaa hundi hayyamame; booda URL kee saaguu dandeessa
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -22,6 +22,20 @@ def root():
 def health():
     return {"status": "ok", "timestamp": datetime.now().isoformat()}
 
+# ENDPOINT HAARAA: Capabilities (Kun kan frontend kee gaafatuuf)
+@app.get("/api/capabilities")
+def get_capabilities():
+    return [
+        {"id": 1, "name": "CSV / Excel", "description": "Auto-clean · chunked"},
+        {"id": 2, "name": "Link / URL", "description": "Google Sheets · CSV · JSON"},
+        {"id": 3, "name": "API Integration", "description": "REST API · Webhooks"},
+        {"id": 4, "name": "Database", "description": "PostgreSQL · MongoDB"},
+        {"id": 5, "name": "Cloud Storage", "description": "S3 · Google Drive"},
+        {"id": 6, "name": "Real-time Stream", "description": "WebSockets · Kafka"},
+        {"id": 7, "name": "IoT Devices", "description": "MQTT · Sensors"},
+        {"id": 8, "name": "Manual Entry", "description": "Forms · Bulk Upload"}
+    ]
+
 @app.post("/api/ping")
 def ping(data: dict):
     return {"received": data, "reply": "pong from DataPulse"}
@@ -29,7 +43,6 @@ def ping(data: dict):
 # Fakkeenya: API kaffaltii (booda TeleBirr/EBC walqabsiisuuf)
 @app.post("/api/payment/create")
 def create_payment(data: dict):
-    # Asitti kaffaltii dhugaa hojjedhu
     return {
         "success": True,
         "message": "Payment request received",
