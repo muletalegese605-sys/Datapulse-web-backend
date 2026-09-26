@@ -2,13 +2,21 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from datetime import datetime
+import os  # Kun PORT Render irraa fudhachuuf barbaachisa
 
 app = FastAPI(title="DataPulse Backend", version="1.0.0")
 
-# CORS: Frontend kee (Firebase) akka walqabatu hayyami
+# CORS: URL frontend kee (Firebase) qofa hayyami
+origins = [
+    "https://datapulseapp-20237.web.app",
+    "https://datapulseapp-20237-21731.web.app",
+    "http://localhost:3000",
+    "http://127.0.0.1:8000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Yeroo ammaa hundi hayyamame; booda URL kee saaguu dandeessa
+    allow_origins=origins,  # Conflict sirreeffame: "*" bakka bu'ee origins fayyadameera
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -51,4 +59,6 @@ def create_payment(data: dict):
     }
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Render irratti PORT env var fayyadamuun barbaachisaa dha
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
