@@ -4,6 +4,7 @@ from datetime import datetime
 class UserCreate(BaseModel):
     email: str
     password: str
+    role: str = "user"
 
 class UserResponse(BaseModel):
     id: int
