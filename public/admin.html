@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0b0f19">
+<meta name="robots" content="noindex,nofollow">
+<title>DataPulse Admin Console</title>
+<script src="https://cdn.tailwindcss.com">
+</script>
+<script>
+tailwind.config = { darkMode:'class', theme:{ extend:{
+  colors:{ brand:{e:'#10b981',n:'#00e676'}, danger:'#f43f5e', warn:'#f59e0b', info:'#0ea5e9' },
+  fontFamily:{ sans:['Inter','system-ui','sans-serif'], mono:['JetBrains Mono','monospace'] }
+}}};
+(function(){ const t = localStorage.getItem('dp_theme') || 'dark';
+  document.documentElement.classList.toggle('dark', t==='dark');
+  document.documentElement.classList.toggle('light', t==='light'); })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background:#0b0f19;color:#e6edf3;margin:0;min-height:100vh;overflow-x:hidden}
+.mono{font-family:'JetBrains Mono',monospace}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:#0b0f19}
+::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}
+html.light ::-webkit-scrollbar-track{background:#f1f5f9}
+.fade{animation:fd .2s ease-out}
+@keyframes fd{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.toast-in{animation:tin .3s ease}
+@keyframes tin{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}
+.modal-in{animation:mi .25s ease-out}
+@keyframes mi{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.pulse-dot{width:8px;height:8px;border-radius:50%;animation:pl 1.8s infinite}
+@keyframes pl{0%,100%{opacity:1}50%{opacity:.4}}
+.spin{animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.03em}
+.badge-free{background:rgba(100,116,139,.2);color:#94a3b8;border:1px solid rgba(100,116,139,.3)}
+.badge-starter{background:rgba(245,158,11,.2);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+.badge-pro{background:rgba(14,165,233,.2);color:#38bdf8;border:1px solid rgba(14,165,233,.3)}
+.badge-enterprise{background:rgba(124,58,237,.2);color:#a78bfa;border:1px solid rgba(124,58,237,.3)}
+.badge-trial{background:rgba(245,158,11,.2);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+.badge-active{background:rgba(16,185,129,.2);color:#34d399;border:1px solid rgba(16,185,129,.3)}
+.badge-suspended{background:rgba(244,63,94,.2);color:#fb7185;border:1px solid rgba(244,63,94,.3)}
+.badge-expired{background:rgba(100,116,139,.2);color:#94a3b8;border:1px solid rgba(100,116,139,.3)}
+.sidebar-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;font-size:12px;font-weight:600;color:#94a3b8;text-decoration:none;cursor:pointer;transition:all .15s;white-space:nowrap}
+.sidebar-link:hover{background:rgba(16,185,129,.08);color:#cbd5e1}
+.sidebar-link.active{background:rgba(16,185,129,.15);color:#10b981}
+.sidebar-link i{width:16px;text-align:center}
+.stat-card{background:#0e1626;border:1px solid #1e293b;border-radius:14px;padding:16px;transition:all .2s}
+.stat-card:hover{border-color:rgba(16,185,129,.4)}
+html.light .stat-card{background:#fff;border-color:#e2e8f0}
+.data-table{width:100%;font-size:12px;border-collapse:collapse}
+.data-table th{background:#0b0f19;color:#94a3b8;font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:.05em;padding:10px;text-align:left;border-bottom:1px solid #1e293b;position:sticky;top:0}
+html.light .data-table th{background:#f8fafc;border-color:#e2e8f0}
+.data-table td{padding:10px;border-bottom:1px solid rgba(30,41,59,.5);color:#cbd5e1}
+.data-table tr:hover td{background:rgba(30,41,59,.3)}
+html.light .data-table td{color:#334155;border-color:rgba(226,232,240,.7)}
+html.light .data-table tr:hover td{background:#f1f5f9}
+.btn{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:11px;padding:7px 12px;border-radius:9px;border:none;cursor:pointer;transition:all .15s;text-decoration:none}
+.btn-primary{background:#10b981;color:#0b0f19}
+.btn-primary:hover{background:#34d399}
+.btn-danger{background:rgba(244,63,94,.15);color:#fb7185;border:1px solid rgba(244,63,94,.4)}
+.btn-danger:hover{background:rgba(244,63,94,.25)}
+.btn-warn{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.4)}
+.btn-warn:hover{background:rgba(245,158,11,.25)}
+.btn-ghost{background:rgba(30,41,59,.5);color:#cbd5e1;border:1px solid #334155}
+.btn-ghost:hover{background:rgba(51,65,85,.7)}
+.btn-sm{padding:4px 9px;font-size:10px;border-radius:7px}
+.input{background:#0b0f19;border:1px solid #1e293b;border-radius:9px;padding:8px 12px;font-size:12px;color:#e6edf3;outline:none;width:100%}
+.input:focus{border-color:#10b981}
+html.light .input{background:#fff;border-color:#cbd5e1;color:#0f172a}
+.select{background:#0b0f19;border:1px solid #1e293b;border-radius:9px;padding:8px 12px;font-size:12px;color:#e6edf3;outline:none}
+html.light .select{background:#fff;border-color:#cbd5e1;color:#0f172a}
+/* live activity feed */
+.feed-item{display:flex;gap:10px;padding:10px;border-bottom:1px solid rgba(30,41,59,.5);animation:fd .3s ease}
+.feed-item:last-child{border-bottom:none}
+.feed-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px}
+/* light mode */
+html.light body{background:#f1f5f9;color:#0f172a}
+html.light .bg-slate-950{background:#f8fafc!important}
+html.light .bg-slate-900,html.light .bg-slate-900\/90,html.light .bg-slate-900\/95,html.light .bg-slate-900\/80,html.light .bg-slate-900\/60{background:#ffffff!important}
+html.light .bg-slate-800{background:#e2e8f0!important}
+html.light .border-slate-800{border-color:#e2e8f0!important}
+html.light .border-slate-700{border-color:#cbd5e1!important}
+html.light .text-white{color:#0f172a!important}
+html.light .text-slate-300{color:#334155!important}
+html.light .text-slate-400{color:#475569!important}
+html.light .text-slate-500{color:#64748b!important}
+html.light .text-emerald-400{color:#059669!important}
+html.light .text-sky-400{color:#0284c7!important}
+html.light .text-amber-400{color:#d97706!important}
+html.light .text-rose-400{color:#e11d48!important}
+html.light .text-purple-400{color:#7c3aed!important}
+
+/* ============================================================
+   MOBILE SIDEBAR FIX — Sidebar above overlay, no blur conflict
+   ============================================================ */
+@media (max-width:1023px){
+  .admin-sidebar{
+    position:fixed!important;
+    left:0;top:0;bottom:0;
+    z-index:9999!important;
+    width:240px!important;
+    transform:translateX(-100%);
+    transition:transform .25s ease-out;
+    overflow-y:auto;
+    will-change:transform;
+    box-shadow:0 0 50px rgba(0,0,0,.9);
+    -webkit-overflow-scrolling:touch;
+    isolation:isolate;
+  }
+  .admin-sidebar.open{
+    transform:translateX(0)!important;
+  }
+  aside#admSidebar{
+    background:#0f172a!important;
+  }
+  html.light aside#admSidebar{
+    background:#ffffff!important;
+  }
+  .admin-overlay{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.75);
+    z-index:9998!important;
+    -webkit-backdrop-filter:blur(4px);
+    backdrop-filter:blur(4px);
+  }
+  .data-table th, .data-table td{padding:8px 6px;font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ BOOT ============ -->
+<div id="boot" class="min-h-screen flex items-center justify-center p-4 bg-slate-950">
+  <div class="text-center space-y-3">
+    <i class="fa-solid fa-shield-halved text-emerald-400 text-3xl spin"></i>
+    <p class="text-[11px] text-slate-500">Loading admin console…</p>
+  </div>
+</div>
+
+<!-- ============ LOGIN ============ -->
+<div id="adminLogin" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-950">
+  <div class="w-full max-w-md space-y-5">
+    <div class="text-center space-y-2">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-700 text-white shadow-2xl shadow-rose-500/30">
+        <i class="fa-solid fa-user-shield text-2xl"></i>
+      </div>
+      <h1 class="text-2xl font-black text-white">DataPulse Admin</h1>
+      <p class="text-xs text-slate-400">Restricted Access · Authorized Personnel Only</p>
+    </div>
+    <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 space-y-4">
+      <div class="flex justify-end gap-2">
+        <button onclick="AdminTheme.toggle()" id="themeBtnL" class="text-[10px] px-2 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700"><i class="fa-solid fa-moon"></i></button>
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-slate-300 block mb-1.5">Admin Email</label>
+        <input type="email" oninput="this.value=this.value.trim().toLowerCase()" id="admEmail" oninput="this.value=this.value.trim().toLowerCase()" placeholder="muletalegese605@gmail.com" autocomplete="username" class="input" onkeydown="if(event.key==='Enter')adminLogin()">
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-slate-300 block mb-1.5">Password</label>
+        <input type="password" id="admPass" placeholder="••••••••" autocomplete="current-password" class="input" onkeydown="if(event.key==='Enter')adminLogin()">
+      </div>
+      <div id="admLoginErr" class="text-[11px] text-rose-400 font-bold hidden"></div>
+      <button onclick="adminLogin()" class="w-full py-3 bg-rose-500 hover:bg-rose-400 text-white font-extrabold text-xs rounded-xl">
+        <i class="fa-solid fa-fingerprint mr-2"></i>Authenticate
+      </button>
+      <div id="admFirstTime" class="hidden text-[10px] text-slate-400 leading-relaxed bg-slate-950 border border-slate-800 rounded-xl p-3">
+        <b class="text-amber-400">⚠ First-time setup</b><br>
+        Admin credentials (change after first login):<br>
+        Email: <code class="mono text-emerald-400">muletalegese605@gmail.com</code><br>
+        Password: <code class="mono text-emerald-400">Mlt@0909</code>
+      </div>
+      <p class="text-[9px] text-slate-500 text-center">
+        <i class="fa-solid fa-lock mr-1"></i>
+        DataPulse Admin Console — Secure &amp; Isolated. Authorized personnel only.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ADMIN APP ============ -->
+<div id="adminApp" class="hidden min-h-screen">
+  <!-- Mobile overlay -->
+  <div id="admOverlay" class="admin-overlay hidden" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside id="admSidebar" class="admin-sidebar fixed left-0 top-0 bottom-0 w-60 bg-slate-900 border-r border-slate-800 overflow-y-auto z-50">
+    <div class="p-4 border-b border-slate-800 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-white">
+        <i class="fa-solid fa-user-shield"></i>
+      </div>
+      <div class="min-w-0">
+        <div class="text-sm font-black text-white">DataPulse</div>
+        <div class="text-[10px] mono text-rose-400 font-bold">ADMIN CONSOLE</div>
+      </div>
+    </div>
+    <div class="p-3 space-y-1" id="admNav"></div>
+    <div class="p-3 border-t border-slate-800 mt-auto">
+      <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="pulse-dot bg-emerald-400"></span>
+          <span class="text-[10px] font-bold text-emerald-400">SYSTEM ONLINE</span>
+        </div>
+        <div class="text-[9px] mono text-slate-500" id="admSessionInfo">Session started</div>
+      </div>
+      <button onclick="adminLogout()" class="w-full mt-2 py-2 bg-rose-500/15 border border-rose-500/40 text-rose-400 font-bold text-[11px] rounded-xl hover:bg-rose-500/25">
+        <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="lg:ml-60 min-h-screen">
+    <!-- Topbar -->
+    <header class="bg-slate-900/95 border-b border-slate-800 sticky top-0 z-40 backdrop-blur">
+      <div class="px-3 sm:px-5 py-3 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <button onclick="toggleSidebar()" class="lg:hidden p-2 text-slate-300">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="min-w-0">
+            <h1 class="text-base sm:text-lg font-black text-white truncate" id="admPageTitle">Dashboard</h1>
+            <p class="text-[10px] text-slate-400 mono truncate" id="admBreadcrumb">admin / dashboard</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <div class="hidden md:flex items-center gap-2 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl text-[10px] mono">
+            <span class="pulse-dot bg-emerald-400"></span>
+            <span class="text-emerald-400 font-bold" id="admOrgsCount">0</span>
+            <span class="text-slate-500">orgs</span>
+          </div>
+          <button onclick="AdminTheme.toggle()" id="themeBtnA" class="text-[10px] px-2 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700"><i class="fa-solid fa-moon"></i></button>
+          <button onclick="Admin.render()" class="text-[10px] px-2 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700" title="Refresh">
+            <i class="fa-solid fa-rotate"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="p-3 sm:p-5" id="admMain"></main>
+  </div>
+</div>
+
+<!-- ============ MODAL ============ -->
+<div id="admModal" class="hidden fixed inset-0 z-[95] bg-slate-950/80 backdrop-blur flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+  <div class="bg-slate-900 border border-slate-700 rounded-3xl p-5 max-w-lg w-full my-8 modal-in">
+    <div class="flex justify-between items-start mb-4">
+      <div>
+        <h3 class="text-base font-bold text-white" id="admModalTitle">Modal</h3>
+        <p class="text-[11px] text-slate-400" id="admModalSub">—</p>
+      </div>
+      <button onclick="closeAdmModal()" class="text-slate-400 hover:text-rose-400 text-lg"><i class="fa-solid fa-times"></i></button>
+    </div>
+    <div id="admModalBody" class="text-xs text-slate-300"></div>
+    <div id="admModalFooter" class="mt-4 flex gap-2 justify-end"></div>
+  </div>
+</div>
+
+<div id="toasts" class="fixed top-3 right-3 left-3 sm:left-auto sm:top-4 sm:right-4 z-[100] flex flex-col gap-2 pointer-events-none items-end"></div>
+
+<script>
+/* ============================================================
+   ADMIN CONSOLE — DataPulse v5
+   ============================================================ */
+
+const LS = {
+  get:(k,d)=>{ try{ return JSON.parse(localStorage.getItem(k)) ?? d; }catch(e){ return d; } },
+  set:(k,v)=>{ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  del:(k)=>{ try{ localStorage.removeItem(k); }catch(e){} },
+  keys:()=>Object.keys(localStorage)
+};
+
+/* ---------- THEME ---------- */
+const AdminTheme = {
+  current(){ return localStorage.getItem('dp_theme') || 'dark'; },
+  apply(t){
+    document.documentElement.classList.toggle('dark', t==='dark');
+    document.documentElement.classList.toggle('light', t==='light');
+    document.querySelectorAll('#themeBtnL i, #themeBtnA i').forEach(i=>i.className = t==='dark'?'fa-solid fa-moon':'fa-solid fa-sun');
+  },
+  toggle(){ const t = this.current()==='dark' ? 'light':'dark';
+    localStorage.setItem('dp_theme', t); this.apply(t); },
+  init(){ this.apply(this.current()); }
+};
+
+/* ---------- TOAST ---------- */
+function toast(msg, type='info'){
+  const c = document.getElementById('toasts'); if(!c) return;
+  const colors = {success:'border-emerald-500 text-emerald-300', error:'border-rose-500 text-rose-300', info:'border-sky-500 text-sky-300', warn:'border-amber-500 text-amber-300'};
+  const icons = {success:'fa-circle-check', error:'fa-circle-exclamation', info:'fa-circle-info', warn:'fa-triangle-exclamation'};
+  const t = document.createElement('div');
+  t.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-xl backdrop-blur text-xs font-semibold max-w-xs bg-slate-900/90 ${colors[type]||colors.info} toast-in`;
+  t.innerHTML = `<i class="fa-solid ${icons[type]||icons.info}"></i><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(60px)'; setTimeout(()=>t.remove(),300); }, 3200);
+}
+
+/* ---------- CONFIRM ---------- */
+function confirmModal(title, sub, body, onConfirm, confirmLabel='Confirm', danger=false){
+  document.getElementById('admModalTitle').textContent = title;
+  document.getElementById('admModalSub').textContent = sub || '—';
+  document.getElementById('admModalBody').innerHTML = body || '';
+  const foot = document.getElementById('admModalFooter');
+  foot.innerHTML = `
+    <button onclick="closeAdmModal()" class="btn btn-ghost">Cancel</button>
+    <button id="admConfirmBtn" class="btn ${danger?'btn-danger':'btn-primary'}">${confirmLabel}</button>
+  `;
+  document.getElementById('admConfirmBtn').onclick = ()=>{ onConfirm(); closeAdmModal(); };
+  document.getElementById('admModal').classList.remove('hidden');
+  document.getElementById('admModal').classList.add('flex');
+}
+function openAdmModal(title, sub, body, footerHtml){
+  document.getElementById('admModalTitle').textContent = title;
+  document.getElementById('admModalSub').textContent = sub || '';
+  document.getElementById('admModalBody').innerHTML = body || '';
+  document.getElementById('admModalFooter').innerHTML = footerHtml || '<button onclick="closeAdmModal()" class="btn btn-ghost">Close</button>';
+  document.getElementById('admModal').classList.remove('hidden');
+  document.getElementById('admModal').classList.add('flex');
+}
+function closeAdmModal(){
+  document.getElementById('admModal').classList.add('hidden');
+  document.getElementById('admModal').classList.remove('flex');
+}
+
+/* ============================================================
+   ADMIN STATE
+   ============================================================ */
+const Admin = {
+  auth: null,
+  view: 'dashboard',
+  sidebarOpen: false,
+  liveTimer: null,
+  activityFeed: [],
+  lastSeen: {},
+
+  init(){
+    AdminTheme.init();
+    /* FORCE RESEED — yoo credentials moofaa jira, bakka bu'i */
+      (function(){
+        var _stale = LS.get('dp_admin_auth', null);
+        var _need = !_stale
+                 || !_stale.email
+                 || _stale.email === 'admin@datapulse.com'
+                 || _stale.password === 'Admin@2025!'
+                 || _stale.email !== 'muletalegese605@gmail.com'
+                 || _stale.password !== 'Mlt@0909';
+        if(_need){
+          LS.set('dp_admin_auth', {
+            email: 'muletalegese605@gmail.com',
+            password: 'Mlt@0909',
+            name: 'Platform Admin',
+            role: 'super',
+            createdAt: new Date().toISOString()
+          });
+          console.log('[Admin] Credentials haaraa seed ta\'an');
+        }
+      })();
+    Admin.showLogin();
+  },
+
+  showLogin(){
+    document.getElementById('boot').classList.add('hidden');
+    document.getElementById('adminLogin').classList.remove('hidden');
+    document.getElementById('adminLogin').classList.add('flex');
+    document.getElementById('admFirstTime').classList.remove('hidden');
+    document.getElementById('admEmail').focus();
+  },
+
+  showApp(){
+    document.getElementById('boot').classList.add('hidden');
+    document.getElementById('adminLogin').classList.add('hidden');
+    document.getElementById('adminApp').classList.remove('hidden');
+    document.getElementById('admSessionInfo').textContent = 'Since '+new Date(Admin.auth.since).toLocaleTimeString();
+    Admin.renderNav();
+    Admin.go('dashboard');
+    Admin.startLive();
+  },
+
+  renderNav(){
+    const tabs = [
+      {id:'dashboard', icon:'fa-gauge-high', label:'Dashboard'},
+      {id:'orgs', icon:'fa-building', label:'Organizations'},
+      {id:'users', icon:'fa-users', label:'Users'},
+      {id:'contracts', icon:'fa-file-signature', label:'Contracts'},
+      {id:'payments', icon:'fa-credit-card', label:'Payments'},
+      {id:'audit', icon:'fa-clipboard-list', label:'Audit Log'},
+      {id:'activity', icon:'fa-wave-square', label:'Live Activity'},
+      {id:'ai', icon:'fa-brain', label:'AI Settings'},
+      {id:'flags', icon:'fa-toggle-on', label:'Feature Flags'},
+      {id:'broadcast', icon:'fa-bullhorn', label:'Broadcast'},
+      {id:'data', icon:'fa-database', label:'Data Tools'},
+      {id:'system', icon:'fa-server', label:'System Health'},
+      {id:'settings', icon:'fa-gear', label:'Settings'}
+    ];
+    document.getElementById('admNav').innerHTML = tabs.map(t=>`
+      <a class="sidebar-link ${t.id===Admin.view?'active':''}" data-nav="${t.id}" onclick="Admin.go('${t.id}')">
+        <i class="fa-solid ${t.icon}"></i><span>${t.label}</span>
+      </a>
+    `).join('');
+  },
+
+  go(view){
+    Admin.view = view;
+    document.querySelectorAll('[data-nav]').forEach(el=>{
+      el.classList.toggle('active', el.dataset.nav === view);
+    });
+    const titles = {
+      dashboard:'Dashboard', orgs:'Organizations', users:'Users', contracts:'Contracts',
+      payments:'Payments', audit:'Audit Log', activity:'Live Activity', ai:'AI Settings',
+      flags:'Feature Flags', broadcast:'Broadcast', data:'Data Tools',
+      system:'System Health', settings:'Settings'
+    };
+    document.getElementById('admPageTitle').textContent = titles[view] || 'Admin';
+    document.getElementById('admBreadcrumb').textContent = 'admin / ' + view;
+    Admin.render();
+    document.getElementById('admSidebar').classList.remove('open');
+    document.getElementById('admOverlay').classList.add('hidden');
+    Admin.sidebarOpen = false;
+    window.scrollTo({top:0,behavior:'smooth'});
+  },
+
+  orgs(){ return LS.get('dp_orgs', []); },
+  contracts(){ return LS.get('dp_contracts', []); },
+  audits(){ return LS.get('dp_audits', []); },
+  records(orgId){ return LS.get('dp_records_'+orgId, []); },
+  featureFlags(){ return LS.get('dp_feature_flags', {}); },
+  broadcasts(){ return LS.get('dp_broadcasts', []); },
+  trialKey(orgId){ return 'dp_trial_'+orgId; },
+  trial(orgId){
+    let t = LS.get('dp_trial_'+orgId, null);
+    if(!t) t = { startedAt:null, endsAt:null, paid:false };
+    return t;
+  },
+
+  metrics(){
+    const orgs = Admin.orgs();
+    const contracts = Admin.contracts();
+    const audits = Admin.audits();
+
+    const totalOrgs = orgs.length;
+    let totalUsers = orgs.length;
+    let totalRows = 0, activeTrials = 0, paidOrgs = 0, expiredTrials = 0;
+    let mrrUsd = 0;
+
+    orgs.forEach(o=>{
+      const r = Admin.records(o.id);
+      totalRows += r.length;
+      const t = Admin.trial(o.id);
+      if(o.plan && o.plan !== 'free'){ paidOrgs++; }
+      if(t.paid){ paidOrgs++; }
+      if(!t.paid && t.endsAt){
+        const ms = new Date(t.endsAt) - Date.now();
+        if(ms > 0) activeTrials++;
+        else expiredTrials++;
+      }
+    });
+
+    const activeContracts = contracts.filter(c=>c.status==='active');
+    activeContracts.forEach(c=>{ mrrUsd += (+c.usd || 0); });
+
+    const cancelledContracts = contracts.filter(c=>c.status==='cancelled');
+
+    return {
+      totalOrgs, totalUsers, totalRows, activeTrials, expiredTrials,
+      paidOrgs, mrrUsd,
+      activeContracts: activeContracts.length,
+      cancelledContracts: cancelledContracts.length,
+      totalAudits: audits.length
+    };
+  },
+
+  async suspendOrg(orgId){
+    const orgs = Admin.orgs();
+    const o = orgs.find(x=>x.id===orgId); if(!o) return;
+    o.status = 'suspended';
+    o.suspendedAt = new Date().toISOString();
+    LS.set('dp_orgs', orgs);
+    Admin.logAction('ORG_SUSPEND', orgId);
+    toast(`Suspended ${o.name}`, 'warn');
+    Admin.render();
+  },
+  async activateOrg(orgId){
+    const orgs = Admin.orgs();
+    const o = orgs.find(x=>x.id===orgId); if(!o) return;
+    o.status = 'active';
+    delete o.suspendedAt;
+    LS.set('dp_orgs', orgs);
+    Admin.logAction('ORG_ACTIVATE', orgId);
+    toast(`Activated ${o.name}`, 'success');
+    Admin.render();
+  },
+  async deleteOrg(orgId){
+    const orgs = Admin.orgs().filter(x=>x.id!==orgId);
+    LS.set('dp_orgs', orgs);
+    const contracts = Admin.contracts().filter(x=>x.orgId!==orgId);
+    LS.set('dp_contracts', contracts);
+    LS.del('dp_records_'+orgId);
+    LS.del(Admin.trialKey(orgId));
+    Admin.logAction('ORG_DELETE', orgId);
+    toast('Organization deleted', 'error');
+    Admin.render();
+  },
+  changePlan(orgId, planId){
+    const orgs = Admin.orgs();
+    const o = orgs.find(x=>x.id===orgId); if(!o) return;
+    o.plan = planId;
+    LS.set('dp_orgs', orgs);
+    Admin.logAction('ORG_PLAN_CHANGE', orgId, {plan: planId});
+    toast(`Plan → ${planId}`, 'success');
+    Admin.render();
+  },
+  grantTrial(orgId, days){
+    const t = Admin.trial(orgId);
+    t.startedAt = new Date().toISOString();
+    t.endsAt = new Date(Date.now()+days*86400000).toISOString();
+    t.paid = false;
+    LS.set(Admin.trialKey(orgId), t);
+    Admin.logAction('TRIAL_GRANT', orgId, {days});
+    toast(`Trial extended ${days} days`, 'success');
+    Admin.render();
+  },
+  markPaid(orgId){
+    const t = Admin.trial(orgId);
+    t.paid = true; t.paidAt = new Date().toISOString();
+    LS.set(Admin.trialKey(orgId), t);
+    Admin.logAction('TRIAL_MARK_PAID', orgId);
+    toast('Marked as paid', 'success');
+    Admin.render();
+  },
+  cancelContract(contractId){
+    const contracts = Admin.contracts();
+    const c = contracts.find(x=>x.id===contractId); if(!c) return;
+    c.status = 'cancelled'; c.cancelledAt = new Date().toISOString();
+    c.cancelledBy = 'admin';
+    LS.set('dp_contracts', contracts);
+    Admin.logAction('CONTRACT_CANCEL', contractId);
+    toast('Contract cancelled', 'warn');
+    Admin.render();
+  },
+  deleteContract(contractId){
+    const contracts = Admin.contracts().filter(x=>x.id!==contractId);
+    LS.set('dp_contracts', contracts);
+    Admin.logAction('CONTRACT_DELETE', contractId);
+    toast('Contract deleted', 'error');
+    Admin.render();
+  },
+  logAction(action, target, extra){
+    const audits = Admin.audits();
+    audits.unshift({
+      id:'ADM-'+Date.now().toString().slice(-6),
+      action, target, org:'[ADMIN]', status:'SUCCESS',
+      at: new Date().toISOString(),
+      performed_at: new Date().toISOString(),
+      item_id: target,
+      payload: extra || {},
+      admin: Admin.auth?.email
+    });
+    LS.set('dp_audits', audits.slice(0, 500));
+  },
+
+  refreshActivity(){
+    const audits = Admin.audits();
+    const feed = [];
+    audits.slice(0, 60).forEach(a=>{
+      feed.push({
+        when: a.performed_at || a.at,
+        action: a.action,
+        org: a.org,
+        target: a.target || a.item_id,
+        status: a.status,
+        type: a.org === '[ADMIN]' ? 'admin' : 'user'
+      });
+    });
+    Admin.orgs().forEach(o=>{
+      feed.push({
+        when: o.createdAt,
+        action: 'ORG_CREATED',
+        org: o.name,
+        target: o.id,
+        status: 'SUCCESS',
+        type: 'signup'
+      });
+    });
+    feed.sort((a,b)=> new Date(b.when) - new Date(a.when));
+    return feed.slice(0, 100);
+  },
+
+  startLive(){
+    if(Admin.liveTimer) clearInterval(Admin.liveTimer);
+    Admin.liveTimer = setInterval(()=>{
+      const orgCount = Admin.orgs().length;
+      const el = document.getElementById('admOrgsCount');
+      if(el) el.textContent = orgCount;
+      if(Admin.view === 'activity' || Admin.view === 'dashboard') Admin.render();
+    }, 5000);
+  },
+
+  render(){
+    const m = document.getElementById('admMain');
+    const el = document.getElementById('admOrgsCount'); if(el) el.textContent = Admin.orgs().length;
+    if(!m) return;
+    switch(Admin.view){
+      case 'dashboard': m.innerHTML = Admin.vDashboard(); Admin.drawCharts(); break;
+      case 'orgs': m.innerHTML = Admin.vOrgs(); break;
+      case 'users': m.innerHTML = Admin.vUsers(); break;
+      case 'contracts': m.innerHTML = Admin.vContracts(); break;
+      case 'payments': m.innerHTML = Admin.vPayments(); break;
+      case 'audit': m.innerHTML = Admin.vAudit(); break;
+      case 'activity': m.innerHTML = Admin.vActivity(); break;
+      case 'ai': m.innerHTML = Admin.vAI(); break;
+      case 'flags': m.innerHTML = Admin.vFlags(); break;
+      case 'broadcast': m.innerHTML = Admin.vBroadcast(); break;
+      case 'data': m.innerHTML = Admin.vDataTools(); break;
+      case 'system': m.innerHTML = Admin.vSystem(); break;
+      case 'settings': m.innerHTML = Admin.vSettings(); break;
+    }
+  },
+
+  vDashboard(){
+    const m = Admin.metrics();
+    const orgs = Admin.orgs();
+    const contracts = Admin.contracts();
+    const etb = (n)=>`ETB ${(+n||0).toLocaleString()}`;
+    const usd = (n)=>`$${(+n||0).toLocaleString()}`;
+
+    return `
+    <div class="space-y-4 sm:space-y-5 fade">
+      ${m.expiredTrials>0 ? `<div class="bg-amber-500/10 border border-amber-500/40 rounded-2xl p-3 flex items-center gap-3">
+        <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+        <div class="flex-1 text-xs"><b class="text-amber-400">${m.expiredTrials}</b> organizations have expired trials</div>
+        <button onclick="Admin.go('orgs')" class="btn btn-warn btn-sm">View</button>
+      </div>` : ''}
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="stat-card">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-[10px] uppercase mono text-slate-400"
+      <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:800;color:#e6edf3;margin-bottom:2px;">Public Site</div>
+          
+          <div class="text-2xl font-black text-white mono">${m.totalOrgs}</div>
+          <div class="text-[10px] text-emerald-400 mt-1"><i class="fa-solid fa-circle text-[6px] mr-1"></i>${m.paidOrgs} paid · ${m.activeTrials} trial</div>
+        </div>
+        <div class="stat-card">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-[10px] uppercase mono text-slate-400">MRR (USD)</span>
+            <i class="fa-solid fa-dollar-sign text-sky-400"></i>
+          </div>
+          <div class="text-2xl font-black text-emerald-400 mono">${usd(m.mrrUsd)}</div>
+          <div class="text-[10px] text-slate-400 mt-1">≈ ${etb(m.mrrUsd*57.5)}</div>
+        </div>
+        <div class="stat-card">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-[10px] uppercase mono text-slate-400">Contracts</span>
+            <i class="fa-solid fa-file-signature text-purple-400"></i>
+          </div>
+          <div class="text-2xl font-black text-white mono">${m.activeContracts}</div>
+          <div class="text-[10px] text-rose-400 mt-1">${m.cancelledContracts} cancelled</div>
+        </div>
+        <div class="stat-card">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-[10px] uppercase mono text-slate-400">Total Rows</span>
+            <i class="fa-solid fa-database text-amber-400"></i>
+          </div>
+          <div class="text-2xl font-black text-white mono">${m.totalRows.toLocaleString()}</div>
+          <div class="text-[10px] text-slate-400 mt-1">${m.totalAudits} audit events</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+          <h3 class="text-sm font-bold text-white mb-3"><i class="fa-solid fa-chart-pie text-emerald-400 mr-2"></i>Plan Distribution</h3>
+          <div style="height:220px"><canvas id="chartPlans"></canvas></div>
+        </div>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+          <h3 class="text-sm font-bold text-white mb-3"><i class="fa-solid fa-credit-card text-sky-400 mr-2"></i>Payment Methods</h3>
+          <div style="height:220px"><canvas id="chartMethods"></canvas></div>
+        </div>
+      </div>
+
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden">
+        <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+          <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-wave-square text-emerald-400 mr-2"></i>Recent Activity</h3>
+          <button onclick="Admin.go('activity')" class="btn btn-ghost btn-sm">View all →</button>
+        </div>
+        <div class="divide-y divide-slate-800">
+          ${Admin.refreshActivity().slice(0,8).map(f=>Admin.renderFeedItem(f)).join('') || '<div class="p-6 text-center text-slate-500 text-xs">No activity yet</div>'}
+        </div>
+      </div>
+    </div>`;
+  },
+
+  renderFeedItem(f){
+    const iconMap = {
+      ORG_CREATED:{i:'fa-user-plus', c:'text-emerald-400', b:'bg-emerald-500/15'},
+      ORG_SUSPEND:{i:'fa-ban', c:'text-rose-400', b:'bg-rose-500/15'},
+      ORG_DELETE:{i:'fa-trash', c:'text-rose-400', b:'bg-rose-500/15'},
+      ORG_ACTIVATE:{i:'fa-check', c:'text-emerald-400', b:'bg-emerald-500/15'},
+      LOGIN:{i:'fa-right-to-bracket', c:'text-sky-400', b:'bg-sky-500/15'},
+      CONTRACT_ACTIVATE:{i:'fa-file-signature', c:'text-emerald-400', b:'bg-emerald-500/15'},
+      CONTRACT_CANCEL:{i:'fa-times', c:'text-rose-400', b:'bg-rose-500/15'},
+      PERM_TOGGLE:{i:'fa-shield-halved', c:'text-purple-400', b:'bg-purple-500/15'},
+      AUTO_PROCESS:{i:'fa-robot', c:'text-amber-400', b:'bg-amber-500/15'},
+      MANUAL_ADD:{i:'fa-plus', c:'text-sky-400', b:'bg-sky-500/15'},
+      ROW_DELETE:{i:'fa-minus', c:'text-rose-400', b:'bg-rose-500/15'},
+      SAMPLE_LOAD:{i:'fa-database', c:'text-emerald-400', b:'bg-emerald-500/15'}
+    };
+    const cfg = iconMap[f.action] || {i:'fa-circle', c:'text-slate-400', b:'bg-slate-800'};
+    const ago = Admin.timeAgo(f.when);
+    return `
+      <div class="feed-item">
+        <div class="feed-icon ${cfg.b} ${cfg.c}"><i class="fa-solid ${cfg.i}"></i></div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-[11px] font-bold text-white">${f.action}</span>
+            ${f.org === '[ADMIN]' ? '<span class="badge badge-enterprise">ADMIN</span>' : ''}
+          </div>
+          <div class="text-[10px] text-slate-400 truncate mt-0.5">
+            <b class="text-slate-300">${f.org}</b> · <span class="mono">${f.target||'—'}</span>
+          </div>
+        </div>
+        <div class="text-[9px] mono text-slate-500 shrink-0">${ago}</div>
+      </div>
+    `;
+  },
+
+  timeAgo(iso){
+    if(!iso) return '—';
+    const ms = Date.now() - new Date(iso).getTime();
+    if(ms < 60000) return Math.round(ms/1000)+'s ago';
+    if(ms < 3600000) return Math.round(ms/60000)+'m ago';
+    if(ms < 86400000) return Math.round(ms/3600000)+'h ago';
+    if(ms < 604800000) return Math.round(ms/86400000)+'d ago';
+    return new Date(iso).toLocaleDateString();
+  },
+
+  async drawCharts(){
+    try {
+      if(typeof Chart === 'undefined'){
+        await new Promise((res,rej)=>{ const s = document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js'; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+      }
+      Chart.defaults.color = AdminTheme.current()==='dark' ? '#94a3b8' : '#475569';
+      const orgs = Admin.orgs();
+      const contracts = Admin.contracts();
+      const planCount = {free:0, starter:0, pro:0, enterprise:0};
+      orgs.forEach(o=>{ planCount[o.plan] = (planCount[o.plan]||0)+1; });
+
+      const el1 = document.getElementById('chartPlans');
+      if(el1){
+        if(window.__chartPlans) window.__chartPlans.destroy();
+        window.__chartPlans = new Chart(el1, {
+          type:'doughnut',
+          data:{
+            labels:['Free','Starter','Pro','Enterprise'],
+            datasets:[{ data:[planCount.free, planCount.starter, planCount.pro, planCount.enterprise],
+              backgroundColor:['#64748b','#f59e0b','#0ea5e9','#8b5cf6'], borderWidth:0 }]
+          },
+          options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10, font:{size:10} } } } }
+        });
+      }
+      const methodCount = {paypal:0, ebc:0, telebirr:0, free:0};
+      contracts.forEach(c=>{ const k = c.method||'free'; methodCount[k] = (methodCount[k]||0)+1; });
+      const el2 = document.getElementById('chartMethods');
+      if(el2){
+        if(window.__chartMethods) window.__chartMethods.destroy();
+        window.__chartMethods = new Chart(el2, {
+          type:'bar',
+          data:{
+            labels:['PayPal','EBC','TeleBirr','Free'],
+            datasets:[{ data:[methodCount.paypal, methodCount.ebc, methodCount.telebirr, methodCount.free],
+              backgroundColor:['#003087','#f59e0b','#10b981','#64748b'], borderRadius:6 }]
+          },
+          options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} } }
+        });
+      }
+    }catch(e){ console.warn('chart err', e); }
+  },
+
+  vOrgs(){
+    const orgs = Admin.orgs().slice().sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
+    return `
+    <div class="space-y-4 fade">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+        <div class="flex flex-wrap gap-2 items-center">
+          <input id="orgSearch" oninput="Admin.filterOrgs()" placeholder="Search orgs…" class="input flex-1 min-w-[200px]">
+          <select id="orgFilterPlan" onchange="Admin.filterOrgs()" class="select">
+            <option value="">All plans</option>
+            <option value="free">Free</option>
+            <option value="starter">Starter</option>
+            <option value="pro">Pro</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+          <select id="orgFilterStatus" onchange="Admin.filterOrgs()" class="select">
+            <option value="">All status</option>
+            <option value="active">Active</option>
+            <option value="suspended">Suspended</option>
+          </select>
+          <button onclick="Admin.exportOrgs()" class="btn btn-ghost btn-sm"><i class="fa-solid fa-file-csv"></i>Export</button>
+          <span class="text-[11px] mono text-slate-400" id="orgCount">${orgs.length} orgs</span>
+        </div>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-x-auto">
+        <table class="data-table" id="orgTable">
+          <thead>
+            <tr>
+              <th>Org / ID</th><th>Plan</th><th>Status</th><th>Records</th><th>Trial</th><th>Created</th><th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${orgs.length ? orgs.map(o=>{
+              const t = Admin.trial(o.id);
+              const recs = Admin.records(o.id).length;
+              const trial = t.paid ? '<span class="badge badge-active">PAID</span>'
+                : t.endsAt ? (new Date(t.endsAt)>Date.now() ? `<span class="badge badge-trial">${Math.ceil((new Date(t.endsAt)-Date.now())/86400000)}d</span>` : `<span class="badge badge-expired">EXPIRED</span>`)
+                : '<span class="badge badge-free">N/A</span>';
+              const status = o.status === 'suspended' ? '<span class="badge badge-suspended">SUSPENDED</span>' : '<span class="badge badge-active">ACTIVE</span>';
+              const planCls = 'badge-'+(o.plan||'free');
+              return `
+              <tr data-org="${o.id}" data-plan="${o.plan||'free'}" data-status="${o.status||'active'}" data-search="${(o.name+' '+o.email+' '+o.id).toLowerCase()}">
+                <td>
+                  <div class="font-bold text-white text-xs">${o.name}</div>
+                  <div class="text-[10px] mono text-slate-500">${o.id}</div>
+                  <div class="text-[10px] text-slate-500 truncate max-w-[200px]">${o.email}</div>
+                </td>
+                <td><span class="badge ${planCls}">${(o.plan||'free').toUpperCase()}</span></td>
+                <td>${status}</td>
+                <td class="mono text-emerald-400 font-bold">${recs}</td>
+                <td>${trial}</td>
+                <td class="text-[10px] mono text-slate-500">${new Date(o.createdAt).toLocaleDateString()}</td>
+                <td class="text-right">
+                  <div class="flex justify-end gap-1">
+                    <button onclick="Admin.viewOrg('${o.id}')" class="btn btn-ghost btn-sm" title="View"><i class="fa-solid fa-eye"></i></button>
+                    ${o.status==='suspended'
+                      ? `<button onclick="Admin.activateOrg('${o.id}')" class="btn btn-ghost btn-sm text-emerald-400" title="Activate"><i class="fa-solid fa-play"></i></button>`
+                      : `<button onclick="Admin.confirmSuspend('${o.id}')" class="btn btn-warn btn-sm" title="Suspend"><i class="fa-solid fa-ban"></i></button>`}
+                    <button onclick="Admin.confirmDelete('${o.id}')" class="btn btn-danger btn-sm" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>`;
+            }).join('') : '<tr><td colspan="7" class="text-center text-slate-500 py-6">No organizations yet</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  },
+  filterOrgs(){
+    const q = (document.getElementById('orgSearch')?.value||'').toLowerCase();
+    const fPlan = document.getElementById('orgFilterPlan')?.value || '';
+    const fStat = document.getElementById('orgFilterStatus')?.value || '';
+    let visible = 0;
+    document.querySelectorAll('#orgTable tbody tr').forEach(tr=>{
+      const search = tr.dataset.search || '';
+      const plan = tr.dataset.plan;
+      const status = tr.dataset.status;
+      const show = search.includes(q) && (!fPlan || plan===fPlan) && (!fStat || status===fStat);
+      tr.style.display = show ? '' : 'none';
+      if(show) visible++;
+    });
+    const el = document.getElementById('orgCount');
+    if(el) el.textContent = visible + ' orgs';
+  },
+  viewOrg(orgId){
+    const o = Admin.orgs().find(x=>x.id===orgId); if(!o) return;
+    const t = Admin.trial(o.id);
+    const recs = Admin.records(o.id);
+    const contracts = Admin.contracts().filter(c=>c.orgId===orgId);
+    const audits = Admin.audits().filter(a=>a.org === o.name).slice(0,15);
+    const totalValue = recs.reduce((s,r)=> s + (+r.price||0)*(+r.stock||0), 0);
+
+    openAdmModal(o.name, 'Organization details', `
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-2 text-[11px]">
+          <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+            <div class="text-slate-500 text-[10px]">ID</div>
+            <div class="mono text-emerald-400 font-bold">${o.id}</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+            <div class="text-slate-500 text-[10px]">Email</div>
+            <div class="mono text-slate-300 truncate">${o.email}</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+            <div class="text-slate-500 text-[10px]">Plan</div>
+            <div class="mono text-emerald-400 font-bold uppercase">${o.plan||'free'}</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+            <div class="text-slate-500 text-[10px]">Status</div>
+            <div class="mono ${o.status==='suspended'?'text-rose-400':'text-emerald-400'} font-bold uppercase">${o.status||'active'}</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+            <div class="text-slate-500 text-[10px]">Records</div>
+            <div class="mono text-slate-200 font-bold">${recs.length}</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+            <div class="text-slate-500 text-[10px]">Data Value</div>
+            <div class="mono text-emerald-400 font-bold">ETB ${totalValue.toLocaleString()}</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+            <div class="text-slate-500 text-[10px]">Trial ends</div>
+            <div class="mono text-slate-200">${t.endsAt ? new Date(t.endsAt).toLocaleDateString() : '—'}</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+            <div class="text-slate-500 text-[10px]">Paid</div>
+            <div class="mono ${t.paid?'text-emerald-400':'text-slate-400'} font-bold">${t.paid?'YES':'NO'}</div>
+          </div>
+        </div>
+        <div>
+          <div class="text-[11px] font-bold text-slate-300 mb-2">Admin Actions</div>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="Admin.changePlanPrompt('${o.id}')" class="btn btn-ghost btn-sm"><i class="fa-solid fa-tag"></i>Change Plan</button>
+            <button onclick="Admin.grantTrialPrompt('${o.id}')" class="btn btn-ghost btn-sm"><i class="fa-solid fa-gift"></i>Grant Trial</button>
+            <button onclick="Admin.markPaid('${o.id}');closeAdmModal();" class="btn btn-ghost btn-sm"><i class="fa-solid fa-check"></i>Mark Paid</button>
+            <button onclick="Admin.exportOrgData('${o.id}')" class="btn btn-ghost btn-sm"><i class="fa-solid fa-download"></i>Export Data</button>
+            <button onclick="Admin.impersonate('${o.id}')" class="btn btn-warn btn-sm"><i class="fa-solid fa-user-secret"></i>Impersonate</button>
+            <button onclick="Admin.clearOrgRecords('${o.id}')" class="btn btn-danger btn-sm"><i class="fa-solid fa-eraser"></i>Clear Records</button>
+          </div>
+        </div>
+        <div>
+          <div class="text-[11px] font-bold text-slate-300 mb-2">Contracts (${contracts.length})</div>
+          <div class="space-y-1.5 max-h-40 overflow-y-auto">
+            ${contracts.length ? contracts.map(c=>`
+              <div class="p-2 rounded-lg bg-slate-950 border border-slate-800 flex justify-between text-[10px]">
+                <span class="mono text-slate-300">${c.id} · ${c.planName}</span>
+                <span class="mono ${c.status==='active'?'text-emerald-400':'text-rose-400'}">${c.status.toUpperCase()}</span>
+              </div>
+            `).join('') : '<div class="text-slate-500 text-[11px]">No contracts</div>'}
+          </div>
+        </div>
+        <div>
+          <div class="text-[11px] font-bold text-slate-300 mb-2">Recent Audit (${audits.length})</div>
+          <div class="space-y-1 max-h-40 overflow-y-auto">
+            ${audits.length ? audits.map(a=>`
+              <div class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-[10px] flex justify-between">
+                <span class="mono text-slate-300">${a.action}</span>
+                <span class="text-slate-500">${new Date(a.performed_at||a.at).toLocaleTimeString()}</span>
+              </div>
+            `).join('') : '<div class="text-slate-500 text-[11px]">No activity</div>'}
+          </div>
+        </div>
+      </div>
+    `, `<button onclick="closeAdmModal()" class="btn btn-ghost">Close</button>`);
+  },
+  confirmSuspend(orgId){
+    const o = Admin.orgs().find(x=>x.id===orgId);
+    confirmModal('Suspend organization?', o?.name||orgId,
+      `<p>User will lose access until reactivated. Data will not be deleted.</p>`,
+      ()=>Admin.suspendOrg(orgId), 'Suspend', true);
+  },
+  confirmDelete(orgId){
+    const o = Admin.orgs().find(x=>x.id===orgId);
+    confirmModal('Delete organization?', 'This is permanent',
+      `<p><b class="text-rose-400">Warning:</b> All data, contracts, and records for <b>${o?.name}</b> will be permanently deleted. This cannot be undone.</p>
+       <div class="mt-2 p-2 bg-rose-500/10 border border-rose-500/30 rounded-lg text-[11px]">
+         <label class="flex items-center gap-2"><input type="checkbox" id="ackDel" class="accent-rose-500"> I understand this cannot be undone</label>
+       </div>`,
+      ()=>{
+        if(!document.getElementById('ackDel')?.checked){ toast('Acknowledge first','warn'); return; }
+        Admin.deleteOrg(orgId);
+      }, 'Delete Forever', true);
+  },
+  changePlanPrompt(orgId){
+    const body = `<select id="newPlan" class="select w-full">
+      <option value="free">Free</option><option value="starter">Starter ($29)</option>
+      <option value="pro">Professional ($99)</option><option value="enterprise">Enterprise ($499)</option>
+    </select>`;
+    document.getElementById('admModalTitle').textContent = 'Change plan';
+    document.getElementById('admModalSub').textContent = orgId;
+    document.getElementById('admModalBody').innerHTML = body;
+    document.getElementById('admModalFooter').innerHTML = `
+      <button onclick="closeAdmModal()" class="btn btn-ghost">Cancel</button>
+      <button onclick="Admin.changePlan('${orgId}', document.getElementById('newPlan').value); closeAdmModal();" class="btn btn-primary">Apply</button>
+    `;
+    document.getElementById('admModal').classList.remove('hidden');
+    document.getElementById('admModal').classList.add('flex');
+  },
+  grantTrialPrompt(orgId){
+    document.getElementById('admModalTitle').textContent = 'Grant trial';
+    document.getElementById('admModalSub').textContent = orgId;
+    document.getElementById('admModalBody').innerHTML = `<input type="number" id="trialDays" value="14" min="1" max="365" class="input">`;
+    document.getElementById('admModalFooter').innerHTML = `
+      <button onclick="closeAdmModal()" class="btn btn-ghost">Cancel</button>
+      <button onclick="Admin.grantTrial('${orgId}', parseInt(document.getElementById('trialDays').value)||14); closeAdmModal();" class="btn btn-primary">Grant</button>
+    `;
+    document.getElementById('admModal').classList.remove('hidden');
+    document.getElementById('admModal').classList.add('flex');
+  },
+  clearOrgRecords(orgId){
+    confirmModal('Clear all records?', 'Data only, org stays',
+      '<p>All records for this organization will be removed. This cannot be undone.</p>',
+      ()=>{ LS.set('dp_records_'+orgId, []); toast('Records cleared','warn'); closeAdmModal(); }, 'Clear', true);
+  },
+  exportOrgData(orgId){
+    const recs = Admin.records(orgId);
+    if(!recs.length){ toast('No data','warn'); return; }
+    const h = Object.keys(recs[0]);
+    const rows = recs.map(r=>h.map(k=>`"${String(r[k]??'').replace(/"/g,'""')}"`).join(','));
+    const csv = [h.join(','),...rows].join('\n');
+    const blob = new Blob([csv],{type:'text/csv'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = orgId+'_data.csv'; a.click();
+    toast('Data exported','success');
+  },
+  impersonate(orgId){
+    const o = Admin.orgs().find(x=>x.id===orgId);
+    confirmModal('Impersonate organization?', o?.name||orgId,
+      `<p>You'll be logged into the main app as <b>${o?.name}</b>.</p>
+       <p class="mt-2 text-[10px] text-amber-400">For security audit, this action is logged. Open the main app in a new tab after confirming.</p>`,
+      ()=>{
+        const session = { email:o.email, name:o.name, role:'admin', impersonatedBy: Admin.auth.email, at: new Date().toISOString() };
+        LS.set('dp_impersonation', session);
+        Admin.logAction('ORG_IMPERSONATE', orgId, {by: Admin.auth.email});
+        toast('Impersonation session set. Open main app.', 'success');
+      }, 'Impersonate', true);
+  },
+
+  vUsers(){
+    const orgs = Admin.orgs();
+    return `
+    <div class="space-y-4 fade">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">Total Admins</div><div class="text-2xl font-black text-white mono">${orgs.length}</div></div>
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">Verified Emails</div><div class="text-2xl font-black text-emerald-400 mono">${orgs.filter(o=>o.emailVerified).length}</div></div>
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">Active (30d)</div><div class="text-2xl font-black text-sky-400 mono">${orgs.filter(o=>{ const a = Admin.audits().find(x=>x.org===o.name); return a && (Date.now()-new Date(a.at).getTime()) < 30*86400000; }).length}</div></div>
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">Suspended</div><div class="text-2xl font-black text-rose-400 mono">${orgs.filter(o=>o.status==='suspended').length}</div></div>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr><th>Email</th><th>Organization</th><th>Verified</th><th>Plan</th><th>Created</th></tr>
+          </thead>
+          <tbody>
+            ${orgs.length ? orgs.slice().sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt)).map(o=>`
+              <tr>
+                <td class="mono text-[11px] text-emerald-400">${o.email}</td>
+                <td class="text-white text-xs font-bold">${o.name}</td>
+                <td>${o.emailVerified ? '<i class="fa-solid fa-circle-check text-emerald-400"></i>' : '<i class="fa-solid fa-circle-xmark text-slate-500"></i>'}</td>
+                <td><span class="badge badge-${o.plan||'free'}">${(o.plan||'free').toUpperCase()}</span></td>
+                <td class="text-[10px] mono text-slate-500">${new Date(o.createdAt).toLocaleDateString()}</td>
+              </tr>`).join('') : '<tr><td colspan="5" class="text-center text-slate-500 py-6">No users yet</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  },
+
+  vContracts(){
+    const contracts = Admin.contracts().slice().sort((a,b)=> new Date(b.startedAt)-new Date(a.startedAt));
+    const total = contracts.reduce((s,c)=> s + (+c.total||0), 0);
+    return `
+    <div class="space-y-4 fade">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">Total</div><div class="text-2xl font-black text-white mono">${contracts.length}</div></div>
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">Active</div><div class="text-2xl font-black text-emerald-400 mono">${contracts.filter(c=>c.status==='active').length}</div></div>
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">Cancelled</div><div class="text-2xl font-black text-rose-400 mono">${contracts.filter(c=>c.status==='cancelled').length}</div></div>
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">Total USD</div><div class="text-2xl font-black text-emerald-400 mono">$${total.toLocaleString()}</div></div>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr><th>Contract</th><th>Org</th><th>Plan</th><th>Method</th><th>Amount</th><th>Status</th><th>Started</th><th class="text-right">Actions</th></tr>
+          </thead>
+          <tbody>
+            ${contracts.length ? contracts.map(c=>`
+              <tr>
+                <td class="mono text-[10px] text-slate-400">${c.id}</td>
+                <td class="text-white text-xs">${c.orgName||'—'}</td>
+                <td><span class="badge badge-${c.plan}">${(c.plan||'').toUpperCase()}</span></td>
+                <td class="text-[11px] mono">${(c.method||'—').toUpperCase()}</td>
+                <td class="mono text-emerald-400 font-bold">${c.displayAmount||('$'+c.usd)}</td>
+                <td><span class="badge badge-${c.status==='active'?'active':'expired'}">${(c.status||'').toUpperCase()}</span></td>
+                <td class="text-[10px] mono text-slate-500">${new Date(c.startedAt).toLocaleDateString()}</td>
+                <td class="text-right">
+                  ${c.status==='active'
+                    ? `<button onclick="Admin.confirmCancelContract('${c.id}')" class="btn btn-warn btn-sm">Cancel</button>`
+                    : `<button onclick="Admin.deleteContract('${c.id}')" class="btn btn-danger btn-sm">Delete</button>`}
+                </td>
+              </tr>
+            `).join('') : '<tr><td colspan="8" class="text-center text-slate-500 py-6">No contracts yet</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  },
+  confirmCancelContract(id){
+    confirmModal('Cancel contract?', id, '<p>User will lose access at end of period.</p>',
+      ()=>Admin.cancelContract(id), 'Cancel Contract', true);
+  },
+
+  vPayments(){
+    const contracts = Admin.contracts();
+    const paid = contracts.filter(c=>c.usd>0);
+    const byMethod = {paypal:0, ebc:0, telebirr:0};
+    paid.forEach(c=>{ const m = c.method||'paypal'; byMethod[m] = (byMethod[m]||0) + (+c.usd||0); });
+    const total = paid.reduce((s,c)=>s+(+c.usd||0),0);
+    return `
+    <div class="space-y-4 fade">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">Total Paid (USD)</div><div class="text-2xl font-black text-emerald-400 mono">$${total.toLocaleString()}</div></div>
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">PayPal</div><div class="text-2xl font-black text-sky-400 mono">$${(byMethod.paypal||0).toLocaleString()}</div></div>
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">EBC</div><div class="text-2xl font-black text-amber-400 mono">$${(byMethod.ebc||0).toLocaleString()}</div></div>
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">TeleBirr</div><div class="text-2xl font-black text-emerald-400 mono">$${(byMethod.telebirr||0).toLocaleString()}</div></div>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr><th>Contract</th><th>Org</th><th>Method</th><th>Currency</th><th>Amount (USD)</th><th>Date</th></tr>
+          </thead>
+          <tbody>
+            ${paid.length ? paid.slice().sort((a,b)=> new Date(b.startedAt)-new Date(a.startedAt)).map(c=>`
+              <tr>
+                <td class="mono text-[10px] text-slate-400">${c.id}</td>
+                <td class="text-white text-xs">${c.orgName||'—'}</td>
+                <td class="text-[11px] mono">${(c.method||'').toUpperCase()}</td>
+                <td class="text-[11px] mono text-slate-400">${c.currency||'USD'}</td>
+                <td class="mono text-emerald-400 font-bold">$${(c.usd||0).toLocaleString()}</td>
+                <td class="text-[10px] mono text-slate-500">${new Date(c.startedAt).toLocaleString()}</td>
+              </tr>`).join('') : '<tr><td colspan="6" class="text-center text-slate-500 py-6">No payments yet</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  },
+
+  vAudit(){
+    const audits = Admin.audits().slice(0, 500);
+    return `
+    <div class="space-y-4 fade">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-wrap gap-2 items-center">
+        <input id="auditSearch" oninput="Admin.filterAudit()" placeholder="Search action/org/target…" class="input flex-1 min-w-[200px]">
+        <select id="auditFilterAction" onchange="Admin.filterAudit()" class="select">
+          <option value="">All actions</option>
+        </select>
+        <button onclick="Admin.exportAudit()" class="btn btn-ghost btn-sm"><i class="fa-solid fa-file-csv"></i>Export</button>
+        <button onclick="Admin.clearAudit()" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i>Clear</button>
+        <span class="text-[11px] mono text-slate-400" id="auditCount">${audits.length} events</span>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-x-auto max-h-[70vh]">
+        <table class="data-table" id="auditTable">
+          <thead><tr><th>Time</th><th>Action</th><th>Org</th><th>Target</th><th>Status</th><th>By</th></tr></thead>
+          <tbody>
+            ${audits.length ? audits.map(a=>`
+              <tr data-search="${(a.action+' '+a.org+' '+(a.target||'')+' '+(a.admin||'')).toLowerCase()}" data-action="${a.action}">
+                <td class="text-[10px] mono text-slate-500 whitespace-nowrap">${new Date(a.performed_at||a.at).toLocaleString()}</td>
+                <td><span class="badge badge-active">${a.action}</span></td>
+                <td class="text-white text-xs">${a.org}</td>
+                <td class="text-[11px] mono text-slate-400 truncate max-w-[200px]">${a.target||a.item_id||'—'}</td>
+                <td class="text-emerald-400 text-[10px] font-bold">${a.status||'SUCCESS'}</td>
+                <td class="text-[10px] text-slate-500">${a.admin||'user'}</td>
+              </tr>`).join('') : '<tr><td colspan="6" class="text-center text-slate-500 py-6">No audit events</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  },
+  filterAudit(){
+    const q = (document.getElementById('auditSearch')?.value||'').toLowerCase();
+    let vis = 0;
+    document.querySelectorAll('#auditTable tbody tr').forEach(tr=>{
+      const s = tr.dataset.search || '';
+      const show = s.includes(q);
+      tr.style.display = show ? '' : 'none';
+      if(show) vis++;
+    });
+    const el = document.getElementById('auditCount'); if(el) el.textContent = vis + ' events';
+  },
+  exportAudit(){
+    const audits = Admin.audits();
+    if(!audits.length) return toast('No data','warn');
+    const rows = audits.map(a=>({
+      Timestamp: a.performed_at||a.at, Action: a.action, Org: a.org,
+      Target: a.target||a.item_id, Status: a.status, By: a.admin||'user'
+    }));
+    const h = Object.keys(rows[0]);
+    const csv = [h.join(','), ...rows.map(r=>h.map(k=>`"${String(r[k]??'').replace(/"/g,'""')}"`).join(','))].join('\n');
+    const blob = new Blob([csv],{type:'text/csv'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `admin_audit_${Date.now()}.csv`; a.click();
+    toast('Audit exported','success');
+  },
+  clearAudit(){
+    confirmModal('Clear all audit logs?', 'Permanent', '<p>All audit events will be deleted.</p>',
+      ()=>{ LS.set('dp_audits', []); toast('Audit cleared','warn'); Admin.render(); }, 'Clear', true);
+  },
+
+  vActivity(){
+    const feed = Admin.refreshActivity();
+    return `
+    <div class="space-y-4 fade">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-2">
+          <span class="pulse-dot bg-emerald-400"></span>
+          <span class="text-xs font-bold text-emerald-400">LIVE</span>
+        </div>
+        <span class="text-[10px] text-slate-500">Auto-refresh every 5s · ${feed.length} recent events</span>
+        <div class="flex-1"></div>
+        <button onclick="Admin.render()" class="btn btn-ghost btn-sm"><i class="fa-solid fa-rotate"></i>Refresh now</button>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden">
+        ${feed.length ? feed.map(f=>Admin.renderFeedItem(f)).join('') : '<div class="p-8 text-center text-slate-500 text-xs">No activity yet</div>'}
+      </div>
+    </div>`;
+  },
+
+  vAI(){
+    const ai = LS.get('dp_admin_ai', {
+      defaultMode: 'local',
+      globalEndpoint: '',
+      globalApiKey: '',
+      maxMessagesPerDay: 1000,
+      rateLimitPerMin: 30,
+      enabled: true,
+      provider: 'local'
+    });
+    return `
+    <div class="space-y-4 fade">
+      <div class="bg-slate-900/90 border border-emerald-500/40 rounded-2xl p-4 sm:p-5">
+        <h3 class="text-base font-bold text-white mb-1"><i class="fa-solid fa-brain text-emerald-400 mr-2"></i>Global AI Configuration</h3>
+        <p class="text-[11px] text-slate-400">Applies to all organizations</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
+          <h4 class="text-sm font-bold text-white">Core</h4>
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1.5">Status</label>
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer">
+              <input type="checkbox" id="aiEnabled" ${ai.enabled?'checked':''} class="accent-emerald-500">
+              <span class="text-xs">Enable AI assistant for all users</span>
+            </label>
+          </div>
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1.5">Default mode</label>
+            <select id="aiDefaultMode" class="select w-full">
+              <option value="local" ${ai.defaultMode==='local'?'selected':''}>Local (free, offline)</option>
+              <option value="remote" ${ai.defaultMode==='remote'?'selected':''}>Remote (custom endpoint)</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1.5">Provider</label>
+            <select id="aiProvider" class="select w-full">
+              <option value="local" ${ai.provider==='local'?'selected':''}>Local</option>
+              <option value="openai" ${ai.provider==='openai'?'selected':''}>OpenAI Compatible</option>
+              <option value="anthropic" ${ai.provider==='anthropic'?'selected':''}>Anthropic</option>
+              <option value="custom" ${ai.provider==='custom'?'selected':''}>Custom</option>
+            </select>
+          </div>
+        </div>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
+          <h4 class="text-sm font-bold text-white">Limits &amp; Endpoint</h4>
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1.5">Max messages / day / user</label>
+            <input id="aiMaxMsg" type="number" value="${ai.maxMessagesPerDay}" class="input">
+          </div>
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1.5">Rate limit / minute</label>
+            <input id="aiRateLimit" type="number" value="${ai.rateLimitPerMin}" class="input">
+          </div>
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1.5">Global AI Endpoint (optional)</label>
+            <input id="aiGlobalEp" placeholder="https://api.example.com/chat" value="${ai.globalEndpoint}" class="input mono text-[11px]">
+          </div>
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1.5">Global AI API Key</label>
+            <input id="aiGlobalKey" type="password" value="${ai.globalApiKey}" placeholder="sk-..." class="input mono text-[11px]">
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end">
+        <button onclick="Admin.saveAI()" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i>Save Settings</button>
+      </div>
+    </div>`;
+  },
+  saveAI(){
+    const cfg = {
+      enabled: document.getElementById('aiEnabled').checked,
+      defaultMode: document.getElementById('aiDefaultMode').value,
+      provider: document.getElementById('aiProvider').value,
+      maxMessagesPerDay: +document.getElementById('aiMaxMsg').value || 1000,
+      rateLimitPerMin: +document.getElementById('aiRateLimit').value || 30,
+      globalEndpoint: document.getElementById('aiGlobalEp').value.trim(),
+      globalApiKey: document.getElementById('aiGlobalKey').value
+    };
+    LS.set('dp_admin_ai', cfg);
+    Admin.logAction('ADMIN_AI_CONFIG', 'global', cfg);
+    toast('AI settings saved','success');
+  },
+
+  vFlags(){
+    const flags = Admin.featureFlags();
+    const list = [
+      {k:'ai', l:'AI Assistant', i:'fa-brain', d:'Chat with AI in any language'},
+      {k:'autoPipeline', l:'Auto Pipeline', i:'fa-robot', d:'Automatic data ingestion + cleaning'},
+      {k:'webhook', l:'Webhooks', i:'fa-webhook', d:'Receive data via webhook URL'},
+      {k:'iot', l:'IoT Stream', i:'fa-satellite-dish', d:'Real-time IoT ingestion'},
+      {k:'payments', l:'Payment System', i:'fa-credit-card', d:'PayPal / EBC / TeleBirr gate'},
+      {k:'trial', l:'Free Trial', i:'fa-gift', d:'14-day free trial for new orgs'}
+    ];
+    return `
+    <div class="space-y-4 fade">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+        <h3 class="text-sm font-bold text-white mb-1"><i class="fa-solid fa-toggle-on text-emerald-400 mr-2"></i>Feature Flags</h3>
+        <p class="text-[11px] text-slate-400">Enable/disable platform features globally</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        ${list.map(f=>{
+          const on = !!flags[f.k];
+          return `
+          <div class="bg-slate-900/90 border ${on?'border-emerald-500/40':'border-slate-800'} rounded-2xl p-4 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl ${on?'bg-emerald-500/20 text-emerald-400':'bg-slate-800 text-slate-500'} flex items-center justify-center">
+              <i class="fa-solid ${f.i}"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-bold text-white">${f.l}</div>
+              <div class="text-[10px] text-slate-400">${f.d}</div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" ${on?'checked':''} onchange="Admin.toggleFlag('${f.k}', this.checked)" class="sr-only peer">
+              <div class="w-11 h-6 bg-slate-700 peer-checked:bg-emerald-500 rounded-full transition relative">
+                <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition peer-checked:translate-x-5"></div>
+              </div>
+            </label>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  },
+  toggleFlag(key, on){
+    const flags = Admin.featureFlags();
+    flags[key] = !!on;
+    LS.set('dp_feature_flags', flags);
+    Admin.logAction('FLAG_TOGGLE', key, {state: on});
+    toast(`${key} ${on?'enabled':'disabled'}`, on?'success':'warn');
+    Admin.render();
+  },
+
+  vBroadcast(){
+    const items = Admin.broadcasts().slice().sort((a,b)=> new Date(b.at)-new Date(a.at));
+    return `
+    <div class="space-y-4 fade">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
+        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-bullhorn text-amber-400 mr-2"></i>Send Broadcast</h3>
+        <input id="bcTitle" placeholder="Title (e.g. Scheduled maintenance)" class="input">
+        <textarea id="bcMsg" rows="4" placeholder="Message to all organizations…" class="input"></textarea>
+        <div class="flex flex-wrap gap-2 items-center">
+          <select id="bcType" class="select">
+            <option value="info">ℹ Info</option>
+            <option value="success">✓ Success</option>
+            <option value="warn">⚠ Warning</option>
+            <option value="error">✗ Critical</option>
+          </select>
+          <select id="bcTarget" class="select">
+            <option value="all">All organizations</option>
+            <option value="paid">Paid only</option>
+            <option value="trial">Trial only</option>
+            <option value="expired">Expired trials</option>
+          </select>
+          <div class="flex-1"></div>
+          <button onclick="Admin.sendBroadcast()" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i>Send</button>
+        </div>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden">
+        <div class="p-3 border-b border-slate-800 flex justify-between">
+          <h4 class="text-sm font-bold text-white">Sent Broadcasts (${items.length})</h4>
+          ${items.length?'<button onclick="Admin.clearBroadcasts()" class="btn btn-danger btn-sm">Clear all</button>':''}
+        </div>
+        ${items.length ? items.map(b=>`
+          <div class="p-3 border-b border-slate-800/60">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="badge badge-${b.type==='error'?'expired':b.type==='warn'?'trial':'active'}">${b.type.toUpperCase()}</span>
+              <span class="text-xs font-bold text-white">${b.title}</span>
+              <span class="text-[10px] text-slate-500">→ ${b.target}</span>
+            </div>
+            <div class="text-[11px] text-slate-300 whitespace-pre-wrap">${b.body}</div>
+            <div class="text-[10px] text-slate-500 mt-1">${new Date(b.at).toLocaleString()} · ${b.sentTo} orgs</div>
+          </div>
+        `).join('') : '<div class="p-6 text-center text-slate-500 text-xs">No broadcasts sent yet</div>'}
+      </div>
+    </div>`;
+  },
+  sendBroadcast(){
+    const title = (document.getElementById('bcTitle').value||'').trim();
+    const body = (document.getElementById('bcBody')?.value || document.getElementById('bcMsg').value||'').trim();
+    const type = document.getElementById('bcType').value;
+    const target = document.getElementById('bcTarget').value;
+    if(!title || !body){ toast('Title and message required','warn'); return; }
+    const orgs = Admin.orgs().filter(o=>{
+      const t = Admin.trial(o.id);
+      if(target==='paid') return t.paid;
+      if(target==='trial') return !t.paid && t.endsAt && new Date(t.endsAt) > Date.now();
+      if(target==='expired') return !t.paid && t.endsAt && new Date(t.endsAt) <= Date.now();
+      return true;
+    });
+    const list = Admin.broadcasts();
+    list.unshift({ id:'BC-'+Date.now().toString().slice(-6), title, body, type, target, at: new Date().toISOString(), sentTo: orgs.length, to: orgs.map(o=>o.id) });
+    LS.set('dp_broadcasts', list.slice(0,100));
+    Admin.logAction('BROADCAST_SENT', title, {target, count: orgs.length});
+    document.getElementById('bcTitle').value = '';
+    document.getElementById('bcMsg').value = '';
+    toast(`Sent to ${orgs.length} orgs`, 'success');
+    Admin.render();
+  },
+  clearBroadcasts(){
+    confirmModal('Clear broadcasts?', 'Permanent', '<p>All broadcast history will be deleted.</p>',
+      ()=>{ LS.set('dp_broadcasts', []); toast('Cleared','warn'); Admin.render(); }, 'Clear', true);
+  },
+
+  vDataTools(){
+    const orgs = Admin.orgs();
+    let totalBytes = 0;
+    orgs.forEach(o=>{ totalBytes += JSON.stringify(Admin.records(o.id)).length; });
+    return `
+    <div class="space-y-4 fade">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">Orgs</div><div class="text-2xl font-black text-white mono">${orgs.length}</div></div>
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">Storage</div><div class="text-2xl font-black text-emerald-400 mono">${(totalBytes/1024).toFixed(1)}KB</div></div>
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">localStorage</div><div class="text-2xl font-black text-sky-400 mono">${(JSON.stringify(localStorage).length/1024).toFixed(1)}KB</div></div>
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">Audits</div><div class="text-2xl font-black text-amber-400 mono">${Admin.audits().length}</div></div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
+          <h4 class="text-sm font-bold text-white">Backup &amp; Export</h4>
+          <button onclick="Admin.exportAll()" class="w-full btn btn-primary"><i class="fa-solid fa-download"></i>Export Full Backup (JSON)</button>
+          <button onclick="Admin.exportOrgs()" class="w-full btn btn-ghost"><i class="fa-solid fa-file-csv"></i>Export Orgs (CSV)</button>
+          <button onclick="Admin.exportContracts()" class="w-full btn btn-ghost"><i class="fa-solid fa-file-csv"></i>Export Contracts (CSV)</button>
+          <label class="w-full btn btn-ghost cursor-pointer text-center">
+            <i class="fa-solid fa-upload"></i>Import Backup (JSON)
+            <input type="file" accept=".json" onchange="Admin.importBackup(event)" class="hidden">
+          </label>
+        </div>
+        <div class="bg-slate-900/90 border border-rose-500/30 rounded-2xl p-4 space-y-3">
+          <h4 class="text-sm font-bold text-rose-400">Danger Zone</h4>
+          <button onclick="Admin.clearAllRecords()" class="w-full btn btn-danger"><i class="fa-solid fa-eraser"></i>Clear ALL Records (all orgs)</button>
+          <button onclick="Admin.clearAllTrials()" class="w-full btn btn-danger"><i class="fa-solid fa-clock"></i>Reset All Trials</button>
+          <button onclick="Admin.cleanOrphans()" class="w-full btn btn-warn"><i class="fa-solid fa-broom"></i>Clean Orphaned Data</button>
+          <button onclick="Admin.factoryReset()" class="w-full btn btn-danger"><i class="fa-solid fa-bomb"></i>FACTORY RESET (delete everything)</button>
+        </div>
+      </div>
+    </div>`;
+  },
+  exportAll(){
+    const all = {};
+    LS.keys().forEach(k=>{
+      if(k.startsWith('dp_')){ try{ all[k] = JSON.parse(localStorage.getItem(k)); }catch(e){ all[k] = localStorage.getItem(k); } }
+    });
+    const blob = new Blob([JSON.stringify(all, null, 2)], {type:'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = `datapulse_backup_${Date.now()}.json`; a.click();
+    Admin.logAction('BACKUP_EXPORT', 'full');
+    toast('Backup exported','success');
+  },
+  exportOrgs(){
+    const orgs = Admin.orgs();
+    if(!orgs.length) return toast('No orgs','warn');
+    const h = ['id','name','email','plan','status','emailVerified','createdAt','apiKey','dataCount'];
+    const csv = [h.join(','), ...orgs.map(o=>h.map(k=>`"${String(o[k]??'').replace(/"/g,'""')}"`).join(','))].join('\n');
+    const blob = new Blob([csv],{type:'text/csv'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `orgs_${Date.now()}.csv`; a.click();
+    toast('Exported','success');
+  },
+  exportContracts(){
+    const cs = Admin.contracts();
+    if(!cs.length) return toast('No contracts','warn');
+    const h = Object.keys(cs[0]);
+    const csv = [h.join(','), ...cs.map(c=>h.map(k=>`"${String(c[k]??'').replace(/"/g,'""')}"`).join(','))].join('\n');
+    const blob = new Blob([csv],{type:'text/csv'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `contracts_${Date.now()}.csv`; a.click();
+    toast('Exported','success');
+  },
+  importBackup(ev){
+    const f = ev.target.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = ()=>{
+      try{
+        const data = JSON.parse(r.result);
+        let n = 0;
+        Object.entries(data).forEach(([k,v])=>{ if(k.startsWith('dp_')){ LS.set(k.replace(/^dp_/, 'dp_'), v); n++; } });
+        toast(`Restored ${n} keys`,'success');
+        Admin.logAction('BACKUP_IMPORT', 'full', {keys: n});
+        Admin.render();
+      }catch(e){ toast('Invalid file: '+e.message,'error'); }
+    };
+    r.readAsText(f);
+    ev.target.value = '';
+  },
+  clearAllRecords(){
+    confirmModal('Clear ALL records?', 'All orgs, all data',
+      `<p class="text-rose-400"><b>Warning:</b> This removes every record from every organization. Org accounts remain.</p>
+       <label class="flex items-center gap-2 mt-2"><input type="checkbox" id="ack1" class="accent-rose-500"> I understand</label>`,
+      ()=>{ if(!document.getElementById('ack1')?.checked){ toast('Acknowledge first','warn'); return; }
+        Admin.orgs().forEach(o=>LS.del('dp_records_'+o.id));
+        Admin.logAction('CLEAR_ALL_RECORDS','global'); toast('All records cleared','warn'); Admin.render();
+      }, 'Clear Everything', true);
+  },
+  clearAllTrials(){
+    confirmModal('Reset all trials?', 'All orgs', '<p>Every org will get a fresh 14-day trial.</p>',
+      ()=>{ Admin.orgs().forEach(o=>{
+        LS.set('dp_trial_'+o.id, { startedAt: new Date().toISOString(), endsAt: new Date(Date.now()+14*86400000).toISOString(), paid:false });
+      }); Admin.logAction('RESET_TRIALS','global'); toast('Trials reset','success'); Admin.render(); },
+      'Reset', true);
+  },
+  cleanOrphans(){
+    const validIds = new Set(Admin.orgs().map(o=>o.id));
+    let removed = 0;
+    LS.keys().forEach(k=>{
+      if(k.startsWith('dp_records_')){
+        const id = k.replace('dp_records_', '');
+        if(!validIds.has(id)){ LS.del(k); removed++; }
+      }
+      if(k.startsWith('dp_trial_')){
+        const id = k.replace('dp_trial_', '');
+        if(!validIds.has(id)){ LS.del(k); removed++; }
+      }
+    });
+    const contracts = Admin.contracts().filter(c=> validIds.has(c.orgId));
+    LS.set('dp_contracts', contracts);
+    toast(`Cleaned ${removed} orphaned keys`,'success');
+    Admin.logAction('CLEAN_ORPHANS','global',{removed});
+  },
+  factoryReset(){
+    confirmModal('Factory reset?', 'DELETE EVERYTHING',
+      `<p class="text-rose-400"><b>This will delete ALL DataPulse data:</b> orgs, contracts, records, audits, everything (except admin credentials).</p>
+       <input placeholder='Type "DELETE ALL" to confirm' id="frAck" class="input mt-2 mono">`,
+      ()=>{
+        if((document.getElementById('frAck')?.value||'').trim() !== 'DELETE ALL'){ toast('Type DELETE ALL to confirm','error'); return; }
+        const keep = { dp_admin_auth: LS.get('dp_admin_auth'), dp_theme: LS.get('dp_theme') };
+        LS.keys().forEach(k=>{ if(k.startsWith('dp_')) LS.del(k); });
+        Object.entries(keep).forEach(([k,v])=> LS.set(k, v));
+        Admin.logAction('FACTORY_RESET', 'global');
+        toast('Factory reset complete','error');
+        Admin.render();
+      }, 'Factory Reset', true);
+  },
+
+  vSystem(){
+    const audits = Admin.audits();
+    const errors = audits.filter(a=>a.status && a.status!=='SUCCESS');
+    const storageUsed = JSON.stringify(localStorage).length;
+    const fiveMinAgo = Date.now() - 5*60000;
+    const recent = audits.filter(a=> new Date(a.performed_at||a.at).getTime() > fiveMinAgo).length;
+    return `
+    <div class="space-y-4 fade">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">Status</div><div class="text-2xl font-black text-emerald-400 mono">OK</div><div class="text-[10px] text-emerald-400 mt-1"><span class="pulse-dot bg-emerald-400 inline-block"></span> Live</div></div>
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">Storage</div><div class="text-2xl font-black text-white mono">${(storageUsed/1024).toFixed(1)}KB</div><div class="text-[10px] text-slate-400 mt-1">Local</div></div>
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">Events / 5m</div><div class="text-2xl font-black text-sky-400 mono">${recent}</div></div>
+        <div class="stat-card"><div class="text-[10px] uppercase mono text-slate-400">Errors</div><div class="text-2xl font-black ${errors.length?'text-rose-400':'text-emerald-400'} mono">${errors.length}</div></div>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+        <h4 class="text-sm font-bold text-white mb-3"><i class="fa-solid fa-server text-emerald-400 mr-2"></i>Storage Keys</h4>
+        <div class="space-y-1.5">
+          ${LS.keys().filter(k=>k.startsWith('dp_')).map(k=>{
+            const size = (localStorage.getItem(k)||'').length;
+            return `<div class="flex items-center justify-between p-2 rounded-lg bg-slate-950 border border-slate-800 text-[11px]">
+              <span class="mono text-slate-300">${k}</span>
+              <span class="mono ${size>1000?'text-amber-400':'text-slate-400'}">${(size/1024).toFixed(2)}KB</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+        <h4 class="text-sm font-bold text-white mb-3">Recent Errors (${errors.length})</h4>
+        ${errors.length ? errors.slice(0,10).map(e=>`
+          <div class="p-2 rounded-lg bg-rose-500/10 border border-rose-500/30 text-[11px] mb-1.5">
+            <span class="badge badge-suspended">${e.action}</span>
+            <span class="text-slate-400 ml-2">${e.org||'—'}</span>
+            <div class="text-slate-500 text-[10px] mt-1">${new Date(e.at).toLocaleString()}</div>
+          </div>`).join('') : '<div class="text-slate-500 text-xs">No errors recorded</div>'}
+      </div>
+    </div>`;
+  },
+
+  vSettings(){
+    const auth = LS.get('dp_admin_auth', {});
+    return `
+    <div class="space-y-4 fade">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
+        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-user-lock text-emerald-400 mr-2"></i>Admin Credentials</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1.5">Admin Email</label>
+            <input id="setEmail" value="${auth.email||''}" class="input">
+          </div>
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1.5">Admin Name</label>
+            <input id="setName" value="${auth.name||''}" class="input">
+          </div>
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1.5">New Password (leave blank)</label>
+            <input id="setPass" type="password" placeholder="New password" class="input">
+          </div>
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1.5">Confirm Password</label>
+            <input id="setPass2" type="password" placeholder="Confirm" class="input">
+          </div>
+        </div>
+        <button onclick="Admin.saveSettings()" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i>Save</button>
+      </div>
+
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
+        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-shield-halved text-emerald-400 mr-2"></i>Security</h3>
+        <label class="flex items-center gap-2 text-xs text-slate-300">
+          <input type="checkbox" id="set2FA" class="accent-emerald-500">
+          Enable two-factor authentication (stub)
+        </label>
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1.5">Session timeout (minutes)</label>
+          <input id="setSession" type="number" value="60" min="5" max="1440" class="input">
+        </div>
+        <div class="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-[10px] text-slate-300">
+          <b class="text-amber-400">Note:</b> Admin panel is currently protected by client-side credentials only. For production, add backend auth + HTTPS.
+        </div>
+      </div>
+
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
+        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-clock-rotate-left text-emerald-400 mr-2"></i>Admin Activity</h3>
+        <div class="text-[11px] text-slate-400">Admin actions are automatically logged in the Audit Log with <code class="mono text-emerald-400">[ADMIN]</code> org tag.</div>
+      </div>
+    </div>`;
+  },
+  saveSettings(){
+    const email = document.getElementById('setEmail').value.trim();
+    const name = document.getElementById('setName').value.trim();
+    const pass = document.getElementById('setPass').value;
+    const pass2 = document.getElementById('setPass2').value;
+    if(!email){ toast('Email required','warn'); return; }
+    if(pass && pass !== pass2){ toast('Passwords do not match','error'); return; }
+    if(pass && pass.length < 8){ toast('Password too short (8+)','error'); return; }
+    const auth = LS.get('dp_admin_auth', {});
+    auth.email = email; auth.name = name || auth.name;
+    if(pass) auth.password = pass;
+    auth.updatedAt = new Date().toISOString();
+    LS.set('dp_admin_auth', auth);
+    if(Admin.auth){ Admin.auth.email = email; Admin.auth.name = name; sessionStorage.setItem('dp_admin_session', JSON.stringify(Admin.auth)); }
+    Admin.logAction('ADMIN_SETTINGS_UPDATE', 'self');
+    toast('Settings saved','success');
+    Admin.render();
+  }
+};
+
+/* ============================================================
+   GLOBAL ADMIN FUNCTIONS
+   ============================================================ */
+function adminLogin(){
+  const email = document.getElementById('admEmail').value.trim().toLowerCase();
+  const pass = document.getElementById('admPass').value;
+  const creds = LS.get('dp_admin_auth', {});
+  const err = document.getElementById('admLoginErr');
+  err.classList.add('hidden');
+
+  if(!email || !pass){ err.textContent = 'Enter email and password'; err.classList.remove('hidden'); return; }
+  if((email||'').trim().toLowerCase() !== (creds.email||'').trim().toLowerCase() || (pass||'').trim() !== (creds.password||'').trim()){
+    err.textContent = 'Invalid credentials';
+    err.classList.remove('hidden');
+    toast('Login failed','error');
+    return;
+  }
+  Admin.auth = { email: creds.email, name: creds.name, role: creds.role||'super', since: new Date().toISOString() };
+  sessionStorage.setItem('dp_admin_session', JSON.stringify(Admin.auth));
+  document.getElementById('admPass').value = '';
+  Admin.logAction('ADMIN_LOGIN', email);
+  Admin.showApp();
+  toast('Welcome, '+creds.name, 'success');
+}
+function adminLogout(){
+  if(!confirm('Sign out of admin console?')) return;
+  if(Admin.auth) Admin.logAction('ADMIN_LOGOUT', Admin.auth.email);
+  sessionStorage.removeItem('dp_admin_session');
+  if(Admin.liveTimer) clearInterval(Admin.liveTimer);
+  Admin.auth = null;
+  document.getElementById('adminApp').classList.add('hidden');
+  document.getElementById('adminLogin').classList.remove('hidden');
+  document.getElementById('adminLogin').classList.add('flex');
+  toast('Signed out','info');
+}
+function toggleSidebar(){
+  const sb = document.getElementById('admSidebar');
+  const ov = document.getElementById('admOverlay');
+  Admin.sidebarOpen = !Admin.sidebarOpen;
+  sb.classList.toggle('open', Admin.sidebarOpen);
+  ov.classList.toggle('hidden', !Admin.sidebarOpen);
+}
+
+/* ---------- INIT ---------- */
+window.addEventListener('DOMContentLoaded', ()=>{
+  Admin.init();
+});
+
+/* ══════════ PUBLIC SITE CARD — AUTO INJECT ══════════ */
+(function(){
+  function injectPublicCard(){
+    var ex = document.getElementById('dpPublicCard');
+    if(ex) ex.remove();
+
+    var card = document.createElement('a');
+    card.id = 'dpPublicCard';
+    card.href = window.location.origin + '/';
+    card.target = '_blank';
+    card.rel = 'noopener';
+    card.style.cssText = 'display:flex;align-items:center;gap:12px;margin:0 0 14px 0;padding:14px 16px;background:linear-gradient(135deg,rgba(16,185,129,.18),rgba(14,165,233,.1));border:1px solid rgba(16,185,129,.5);border-radius:14px;text-decoration:none;color:inherit;box-shadow:0 4px 14px rgba(16,185,129,.18);cursor:pointer;box-sizing:border-box;width:100%;';
+
+    card.innerHTML = '<div style="width:44px;height:44px;border-radius:11px;background:linear-gradient(135deg,#10b981,#34d399);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0b0f19" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></div>'
+      + '<div style="flex:1;min-width:0;overflow:hidden;"><div style="font-size:13px;font-weight:800;color:#e6edf3;margin-bottom:2px;">Public Site</div><div style="font-size:11px;color:#94a3b8;">User dashboard &amp; live platform</div><div style="font-size:10px;color:#10b981;font-family:monospace;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">datapulseapp-20237.web.app</div></div>'
+      + '<div style="padding:8px 14px;background:#10b981;color:#0b0f19;border-radius:9px;font-weight:800;font-size:11px;flex-shrink:0;white-space:nowrap;">Open \u2192</div>';
+
+    card.addEventListener('mouseenter', function(){ this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(16,185,129,.35)'; });
+    card.addEventListener('mouseleave', function(){ this.style.transform=''; this.style.boxShadow='0 4px 14px rgba(16,185,129,.18)'; });
+
+    // Insertion target
+    var target = document.querySelector('#admContent')
+              || document.querySelector('#adminApp')
+              || document.querySelector('main')
+              || document.body;
+
+    // Find KPI grid (contains TOTAL ORGS + MRR)
+    var kpiGrid = null;
+    var all = target.querySelectorAll('div');
+    for(var i=0; i<all.length; i++){
+      var t = all[i].textContent || '';
+      if(t.indexOf('TOTAL ORGS') !== -1 && t.indexOf('MRR') !== -1){
+        kpiGrid = all[i];
+        break;
+      }
+    }
+
+    if(kpiGrid && kpiGrid.parentNode){
+      kpiGrid.parentNode.insertBefore(card, kpiGrid);
+    } else {
+      // Fallback: prepend after first heading
+      var h = target.querySelector('h1, h2, .page-title, header');
+      if(h && h.parentNode){
+        h.parentNode.insertBefore(card, h.nextSibling);
+      } else {
+        target.insertBefore(card, target.firstChild);
+      }
+    }
+  }
+
+  function boot(){
+    injectPublicCard();
+    setTimeout(injectPublicCard, 400);
+    setTimeout(injectPublicCard, 1200);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+
+  // Re-inject after tab changes
+  setTimeout(function(){
+    if(!document.body) return;
+    var obs = new MutationObserver(function(){
+      if(!document.getElementById('dpPublicCard')){
+        setTimeout(injectPublicCard, 80);
+      }
+    });
+    obs.observe(document.body, {childList:true, subtree:true});
+  }, 600);
+})();
+
+</script>
+
+<!-- Firebase Live Data Script -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getCountFromServer } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyBQjuTCYfq4ZJ6hL0WpM0l0yQ9Uj7cZ7vE",
+    authDomain: "datapulseapp-20237.firebaseapp.com",
+    projectId: "datapulseapp-20237",
+    storageBucket: "datapulseapp-20237.appspot.com",
+    messagingSenderId: "761598661868",
+    appId: "1:761598661868:web:2d7b93a45f6c3b8c4b3c8e"
+  };
+  
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  function updateCardByTitle(titleText, newValue) {
+      const cards = document.querySelectorAll('.card, .metric-card, [class*="card"]');
+      for (let card of cards) {
+          if (card.textContent.includes(titleText)) {
+              const allElements = Array.from(card.querySelectorAll('*'));
+              let bestEl = null;
+              let maxSize = 0;
+              for (let el of allElements) {
+                  if (el.children.length === 0 && el.textContent.trim() !== '') {
+                      const size = parseFloat(window.getComputedStyle(el).fontSize);
+                      if (size > maxSize) {
+                          maxSize = size;
+                          bestEl = el;
+                      }
+                  }
+              }
+              if (bestEl) {
+                  bestEl.textContent = newValue;
+                  return true;
+              }
+          }
+      }
+      return false;
+  }
+
+  async function fetchLiveData() {
+      try {
+          const orgsSnapshot = await getCountFromServer(collection(db, "organizations"));
+          updateCardByTitle("PUBLIC SITE", orgsSnapshot.data().count);
+
+          const contractsSnapshot = await getCountFromServer(collection(db, "contracts"));
+          updateCardByTitle("CONTRACTS", contractsSnapshot.data().count);
+
+          const auditSnapshot = await getCountFromServer(collection(db, "audit_logs"));
+          updateCardByTitle("TOTAL ROWS", auditSnapshot.data().count);
+          
+          console.log("Dashboard updated with live data!");
+      } catch (error) {
+          console.error("Error fetching live data: ", error);
+      }
+  }
+  
+  fetchLiveData();
+</script>
+</body>
+</html>
+<!-- Firebase Live Data Script -->
+

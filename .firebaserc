@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "default": "datapulseapp-20237"
+  },
+  "targets": {
+    "datapulseapp-20237": {
+      "hosting": {
+        "app": [
+          "datapulseapp-20237"
+        ],
+        "admin": [
+          "datapulseapp-20237-21731"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

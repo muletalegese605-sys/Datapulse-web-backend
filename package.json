@@ -1,0 +1,30 @@
+{
+  "name": "datapulse-web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build --webpack",
+    "start": "next start"
+  },
+  "dependencies": {
+    "firebase": "^12.19.0",
+    "firebase-admin": "^14.5.0",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-hot-toast": "^2.6.1"
+  },
+  "description": "",
+  "main": "firebase-init.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@babel/core": "^8.0.6",
+    "@types/react": "19.3.0",
+    "babel-loader": "^10.1.1",
+    "typescript": "7.0.2"
+  }
+}

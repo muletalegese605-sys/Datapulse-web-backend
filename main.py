@@ -1,0 +1,17 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+# CORS Middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://datapulseapp-20237.web.app", "http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+def root():
+    return {"message": "DataPulse Backend is running!", "status": "online"}

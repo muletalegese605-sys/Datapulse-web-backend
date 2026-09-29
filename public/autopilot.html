@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataPulse AutoPilot</title>
+    <style>
+        :root { --bg: #121212; --card: #1e1e1e; --primary: #00d09c; --text: #fff; --text-muted: #888; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 15px; }
+        
+        .header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .logo { width: 45px; height: 45px; background: #00d09c; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #121212; font-size: 1.2rem; }
+        .header-text h1 { font-size: 1.2rem; margin: 0; }
+        .header-text p { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+        .badge { background: #004d40; color: var(--primary); padding: 5px 10px; border-radius: 20px; font-size: 0.7rem; margin-left: auto; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .stat-card { background: var(--card); padding: 15px; border-radius: 10px; }
+        .stat-card p { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+        .stat-card h2 { font-size: 1.5rem; color: var(--primary); margin: 0; }
+        .stat-card h2.orange { color: #ff9800; }
+
+        .filters { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
+        .filter-btn { background: var(--card); border: 1px solid #333; color: var(--text-muted); padding: 8px 15px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; white-space: nowrap; }
+        .filter-btn.active { background: var(--primary); color: #121212; border-color: var(--primary); font-weight: bold; }
+
+        .cap-card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 3px solid var(--primary); }
+        .cap-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .cap-category { font-size: 0.7rem; color: var(--primary); text-transform: uppercase; font-weight: bold; }
+        .cap-title { font-size: 1rem; margin-bottom: 5px; }
+        .cap-desc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; }
+        .cap-stats { display: flex; gap: 15px; margin-bottom: 10px; font-size: 0.75rem; }
+        .cap-stats span { color: var(--primary); font-weight: bold; }
+        .cap-stats small { color: var(--text-muted); display: block; }
+        
+        .run-btn { width: 100%; background: var(--primary); color: #121212; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; }
+        .run-btn:active { opacity: 0.8; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: flex-end; z-index: 1000; }
+        .modal-content { background: var(--card); width: 100%; max-width: 500px; padding: 20px; border-radius: 20px 20px 0 0; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .modal-header h3 { margin: 0; font-size: 1.1rem; }
+        .close-btn { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; }
+        .form-group select, .form-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #2a2a2a; color: #fff; font-size: 0.9rem; }
+        
+        .format-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 5px; }
+        .format-btn { background: #2a2a2a; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; cursor: pointer; text-align: center; font-size: 0.8rem; }
+        .format-btn.active { border-color: var(--primary); color: var(--primary); background: #1a3a30; }
+        
+        .execute-btn { width: 100%; background: var(--primary); color: #121212; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">DP</div>
+        <div class="header-text">
+            <h1>DataPulse AutoPilot</h1>
+            <p>17 Advanced Data Capabilities</p>
+        </div>
+        <div class="badge">AutoPilot Active</div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card"><p>Total Capabilities</p><h2>17</h2></div>
+        <div class="stat-card"><p>Categories</p><h2>7</h2></div>
+        <div class="stat-card"><p>Auto Execute</p><h2 class="orange">AUTO</h2></div>
+        <div class="stat-card"><p>Records</p><h2 id="record-count">0</h2></div>
+    </div>
+
+    <div class="filters" id="filters">
+        <button class="filter-btn active" onclick="filterCaps('all')">All</button>
+        <button class="filter-btn" onclick="filterCaps('Ingestion')">Ingestion</button>
+        <button class="filter-btn" onclick="filterCaps('Analysis')">Analysis</button>
+        <button class="filter-btn" onclick="filterCaps('Cleaning')">Cleaning</button>
+        <button class="filter-btn" onclick="filterCaps('Transformation')">Transformation</button>
+        <button class="filter-btn" onclick="filterCaps('Export')">Export</button>
+        <button class="filter-btn" onclick="filterCaps('Security')">Security</button>
+    </div>
+
+    <div id="capabilities-container"></div>
+
+    <!-- MODAL FOR RUN AUTO -->
+    <div class="modal" id="run-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Run Auto</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label>1. Deetaa Galchuuf (Upload Data)</label>
+                <select id="upload-format">
+                    <option value="csv">CSV (.csv)</option>
+                    <option value="json">JSON (.json)</option>
+                    <option value="xlsx">Excel (.xlsx)</option>
+                    <option value="xml">XML (.xml)</option>
+                    <option value="txt">Text (.txt)</option>
+                </select>
+                <input type="file" id="file-input" style="margin-top: 10px;">
+            </div>
+
+            <div class="form-group">
+                <label>2. Deetaa Buusuu (Download Format)</label>
+                <div class="format-grid">
+                    <div class="format-btn active" onclick="selectFormat(this, 'csv')">CSV</div>
+                    <div class="format-btn" onclick="selectFormat(this, 'json')">JSON</div>
+                    <div class="format-btn" onclick="selectFormat(this, 'pdf')">PDF</div>
+                    <div class="format-btn" onclick="selectFormat(this, 'xlsx')">Excel</div>
+                </div>
+            </div>
+
+            <button class="execute-btn" onclick="executeAuto()">▶ Execute AutoPilot</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. DATA FOR 17 CAPABILITIES
+        const capabilities = [
+            { id: 1, title: "Data Entry & Input Automation", category: "Ingestion", desc: "Automate data entry from forms, emails, and files.", accuracy: "99.2%", records: "10,000", time: "200" },
+            { id: 2, title: "Data Research & Exploration", category: "Analysis", desc: "Explore datasets and discover hidden patterns.", accuracy: "95.0%", records: "5,000", time: "150" },
+            { id: 3, title: "Data Cleaning & Deduplication", category: "Cleaning", desc: "Remove duplicates and clean messy data.", accuracy: "98.5%", records: "20,000", time: "300" },
+            { id: 4, title: "Data Transformation & Mapping", category: "Transformation", desc: "Map and transform data between formats.", accuracy: "99.0%", records: "15,000", time: "120" },
+            { id: 5, title: "Data Validation & Quality Checks", category: "Cleaning", desc: "Validate data against rules and standards.", accuracy: "99.9%", records: "30,000", time: "250" },
+            { id: 6, title: "Automated Reporting & Dashboards", category: "Analysis", desc: "Generate reports and dashboards automatically.", accuracy: "97.0%", records: "2,000", time: "100" },
+            { id: 7, title: "File Format Conversion", category: "Ingestion", desc: "Convert between CSV, JSON, XML, Excel, etc.", accuracy: "99.5%", records: "50,000", time: "50" },
+            { id: 8, title: "Web Scraping & Extraction", category: "Ingestion", desc: "Extract data from websites automatically.", accuracy: "92.0%", records: "1,000", time: "400" },
+            { id: 9, title: "Predictive Analytics & Forecasting", category: "Analysis", desc: "Forecast trends using machine learning.", accuracy: "88.0%", records: "3,000", time: "500" },
+            { id: 10, title: "Data Enrichment & Augmentation", category: "Transformation", desc: "Enrich data with external sources.", accuracy: "94.0%", records: "8,000", time: "180" },
+            { id: 11, title: "Anomaly Detection", category: "Analysis", desc: "Detect outliers and anomalies in data.", accuracy: "96.0%", records: "12,000", time: "220" },
+            { id: 12, title: "Data Masking & Anonymization", category: "Security", desc: "Protect sensitive data with masking.", accuracy: "100%", records: "25,000", time: "90" },
+            { id: 13, title: "Batch Processing & Scheduling", category: "Ingestion", desc: "Schedule large data processing jobs.", accuracy: "99.1%", records: "100,000", time: "60" },
+            { id: 14, title: "API Integration & Syncing", category: "Ingestion", desc: "Sync data with external APIs.", accuracy: "98.0%", records: "6,000", time: "130" },
+            { id: 15, title: "Natural Language Processing", category: "Analysis", desc: "Analyze text data and sentiment.", accuracy: "91.0%", records: "4,000", time: "350" },
+            { id: 16, title: "Image & Video Data Processing", category: "Analysis", desc: "Extract insights from multimedia.", accuracy: "85.0%", records: "500", time: "600" },
+            { id: 17, title: "Export & Distribution", category: "Export", desc: "Export data in multiple formats.", accuracy: "100%", records: "200,000", time: "30" }
+        ];
+
+        let selectedFormat = 'csv';
+
+        // 2. RENDER FUNCTION
+        function renderCapabilities(filter = 'all') {
+            const container = document.getElementById('capabilities-container');
+            container.innerHTML = '';
+            
+            const filtered = filter === 'all' ? capabilities : capabilities.filter(c => c.category === filter);
+            
+            filtered.forEach(cap => {
+                const card = document.createElement('div');
+                card.className = 'cap-card';
+                card.innerHTML = `
+                    <div class="cap-header">
+                        <span class="cap-category">${cap.category}</span>
+                        <span style="font-size: 0.7rem; color: #888;">#${cap.id}</span>
+                    </div>
+                    <div class="cap-title">${cap.title}</div>
+                    <div class="cap-desc">${cap.desc}</div>
+                    <div class="cap-stats">
+                        <div><span>${cap.accuracy}</span><small>Accuracy</small></div>
+                        <div><span>${cap.records}</span><small>Records Processed</small></div>
+                        <div><span>${cap.time}</span><small>Time Saved Hours</small></div>
+                    </div>
+                    <button class="run-btn" onclick="openModal('${cap.title}')">▶ Run Auto</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 3. FILTER LOGIC
+        function filterCaps(category) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderCapabilities(category);
+        }
+
+        // 4. MODAL LOGIC
+        function openModal(title) {
+            document.getElementById('modal-title').innerText = "Run Auto: " + title;
+            document.getElementById('run-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('run-modal').style.display = 'none';
+        }
+
+        function selectFormat(el, format) {
+            document.querySelectorAll('.format-btn').forEach(btn => btn.classList.remove('active'));
+            el.classList.add('active');
+            selectedFormat = format;
+        }
+
+        // 5. EXECUTE AUTO (Simulation)
+        function executeAuto() {
+            const fileInput = document.getElementById('file-input');
+            const uploadFormat = document.getElementById('upload-format').value;
+            
+            if (!fileInput.files.length) {
+                alert("Maaloo dura faayilii deetaa galchi!");
+                return;
+            }
+
+            // Loading simulation
+            const btn = event.target;
+            btn.innerText = "Processing...";
+            btn.style.opacity = "0.7";
+            
+            setTimeout(() => {
+                btn.innerText = "▶ Execute AutoPilot";
+                btn.style.opacity = "1";
+                closeModal();
+                
+                // Update record count
+                const currentRecords = parseInt(document.getElementById('record-count').innerText) || 0;
+                document.getElementById('record-count').innerText = currentRecords + Math.floor(Math.random() * 1000) + 100;
+                
+                // Download simulation
+                const blob = new Blob(["DataPulse AutoPilot Output\nFormat: " + selectedFormat + "\nDate: " + new Date().toISOString()], {type: 'text/plain'});
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `datapulse_output.${selectedFormat}`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+                
+                alert(`AutoPilot milkaa'eera! Deetaan ${selectedFormat} ta'ee buufameera.`);
+            }, 2000);
+        }
+
+        // Initialize
+        renderCapabilities();
+    </script>
+</body>
+</html>
