@@ -16,6 +16,8 @@ import models
 import schemas
 from database import engine, get_db
 
+from flask_cors import CORS
+CORS(app, origins=["https://datapulseapp-20237.web.app", "https://datapulse-web-backend-2.onrender.com"])
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="DataPulse Backend", version="1.0.0")
