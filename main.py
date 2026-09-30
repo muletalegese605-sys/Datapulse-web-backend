@@ -231,3 +231,7 @@ if __name__ == "__main__":
     # Render irratti PORT env var fayyadamuun barbaachisaa dha
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
+
+@app.post("/register")
+def register_user(user_data: dict):
+    return {"message": "User registered", "data": user_data}
