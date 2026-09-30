@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataPulse — Capabilities</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Roboto,sans-serif; }
+body { background:#0a0e1a; color:#e6edf7; min-height:100vh; padding:20px; }
+.container { max-width:1200px; margin:0 auto; }
+.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid #1e2836; }
+.header h1 { font-size:22px; color:#10b981; }
+.back-btn { background:#1e2836; color:#e6edf7; border:none; padding:10px 18px; border-radius:8px; cursor:pointer; font-size:14px; }
+.back-btn:hover { background:#2a3a4f; }
+.tabs { display:flex; gap:8px; margin-bottom:24px; background:#111827; padding:6px; border-radius:12px; }
+.tab { flex:1; padding:12px; text-align:center; border-radius:8px; cursor:pointer; font-size:14px; font-weight:500; color:#94a3b8; transition:all 0.2s; }
+.tab.active { background:#10b981; color:#0a0e1a; font-weight:600; }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+/* Plans */
+.plans-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
+.plan-card { background:#111827; border:1px solid #1e2836; border-radius:16px; padding:24px; position:relative; transition:all 0.2s; }
+.plan-card:hover { border-color:#10b981; transform:translateY(-4px); }
+.plan-card.current { border-color:#10b981; box-shadow:0 0 0 2px #10b981; }
+.plan-card h3 { font-size:20px; margin-bottom:8px; }
+.plan-price { font-size:28px; font-weight:700; color:#10b981; margin:12px 0; }
+.plan-price span { font-size:14px; color:#94a3b8; font-weight:400; }
+.plan-features { list-style:none; margin:16px 0; }
+.plan-features li { padding:6px 0; font-size:13px; color:#94a3b8; display:flex; align-items:center; gap:8px; }
+.plan-features li::before { content:'✓'; color:#10b981; font-weight:bold; }
+.plan-btn { width:100%; padding:12px; border-radius:8px; border:none; background:#10b981; color:#0a0e1a; font-weight:600; cursor:pointer; font-size:14px; }
+.plan-btn:hover { background:#059669; }
+.plan-btn:disabled { background:#374151; color:#6b7280; cursor:not-allowed; }
+.badge-current { position:absolute; top:12px; right:12px; background:#10b981; color:#0a0e1a; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+/* Capabilities */
+.category-section { margin-bottom:28px; }
+.category-title { font-size:14px; color:#10b981; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; font-weight:600; }
+.caps-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; }
+.cap-item { background:#111827; border:1px solid #1e2836; border-radius:10px; padding:12px 14px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:10px; }
+.cap-item:hover { border-color:#10b981; }
+.cap-item.selected { background:#10b98115; border-color:#10b981; }
+.cap-item.locked { opacity:0.4; cursor:not-allowed; }
+.cap-item input { cursor:pointer; accent-color:#10b981; width:16px; height:16px; }
+.cap-name { font-size:13px; font-weight:500; flex:1; }
+.cap-cat { font-size:10px; color:#64748b; }
+/* Summary */
+.summary-bar { position:sticky; bottom:0; background:#111827; border:1px solid #1e2836; border-radius:12px; padding:16px 20px; margin-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+.summary-info { font-size:14px; color:#94a3b8; }
+.summary-info strong { color:#10b981; font-size:18px; }
+.save-btn { background:#10b981; color:#0a0e1a; border:none; padding:12px 24px; border-radius:8px; font-weight:600; cursor:pointer; font-size:14px; }
+.save-btn:hover { background:#059669; }
+.save-btn:disabled { background:#374151; color:#6b7280; cursor:not-allowed; }
+.loading { text-align:center; padding:40px; color:#94a3b8; }
+.empty { text-align:center; padding:40px; color:#64748b; }
+.toast { position:fixed; top:20px; right:20px; background:#10b981; color:#0a0e1a; padding:14px 20px; border-radius:10px; font-weight:600; z-index:9999; transform:translateX(400px); transition:transform 0.3s; }
+.toast.show { transform:translateX(0); }
+.toast.error { background:#ef4444; color:#fff; }
+@media (max-width:600px) { .tabs { flex-direction:column; } .plans-grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🎯 DataPulse Platform</h1>
+    <button class="back-btn" onclick="window.location.href='index.html'">← Dashboard</button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="pricing">💰 Pricing Plans</div>
+    <div class="tab" data-tab="capabilities">🧩 Capabilities (40)</div>
+    <div class="tab" data-tab="my-sub">📋 My Subscription</div>
+  </div>
+
+  <div id="pricing" class="tab-content active">
+    <div class="loading">Plans loading...</div>
+    <div class="plans-grid" id="plansGrid"></div>
+  </div>
+
+  <div id="capabilities" class="tab-content">
+    <div class="loading">Capabilities loading...</div>
+    <div id="capsContainer"></div>
+  </div>
+
+  <div id="my-sub" class="tab-content">
+    <div class="loading">Subscription loading...</div>
+    <div id="mySubContainer"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAb1Fbs8Y36BZ8rnIUZBjocc-m0Em_PgcQ",
+  authDomain: "datapulseapp-20237.firebaseapp.com",
+  projectId: "datapulseapp-20237",
+  storageBucket: "datapulseapp-20237.firebasestorage.app",
+  messagingSenderId: "459433026519",
+  appId: "1:459433026519:web:102f1f951bcb91d306e192"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let PLANS = [];
+let CAPABILITIES = [];
+let CURRENT_ORG = localStorage.getItem('dp_org') || 'ORG-DEMO';
+let CURRENT_SUB = null;
+let SELECTED_PLAN = 'free';
+let SELECTED_CAPS = new Set();
+
+const toast = (msg, err) => {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (err ? ' error' : '');
+  setTimeout(() => t.className = 'toast' + (err ? ' error' : ''), 3000);
+};
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Load plans
+async function loadPlans() {
+  try {
+    const snap = await getDocs(collection(db, 'plans'));
+    PLANS = [];
+    snap.forEach(d => PLANS.push({ id: d.id, ...d.data() }));
+    PLANS.sort((a,b) => a.price_etb - b.price_etb);
+    renderPlans();
+  } catch(e) {
+    document.getElementById('plansGrid').innerHTML = '<div class="empty">Plans load error: ' + e.message + '</div>';
+  }
+}
+
+function renderPlans() {
+  const grid = document.getElementById('plansGrid');
+  if (!PLANS.length) { grid.innerHTML = '<div class="empty">No plans available</div>'; return; }
+  grid.innerHTML = PLANS.map(p => {
+    const isCurrent = CURRENT_SUB && CURRENT_SUB.plan === p.id;
+    const caps = p.max_capabilities === -1 ? 'Unlimited' : p.max_capabilities;
+    const recs = p.max_records === -1 ? 'Unlimited' : p.max_records.toLocaleString();
+    const users = p.max_users === -1 ? 'Unlimited' : p.max_users;
+    return '<div class="plan-card ' + (isCurrent ? 'current' : '') + '">' +
+      (isCurrent ? '<div class="badge-current">CURRENT</div>' : '') +
+      '<h3>' + p.name + '</h3>' +
+      '<div class="plan-price">ETB ' + p.price_etb.toLocaleString() + '<span>/month</span></div>' +
+      '<ul class="plan-features">' +
+        '<li>' + caps + ' Data Capabilities</li>' +
+        '<li>' + recs + ' Records</li>' +
+        '<li>' + users + ' Team Members</li>' +
+        '<li>Auto-clean & AI Analysis</li>' +
+        (p.id === 'pro' || p.id === 'enterprise' ? '<li>AI Assistant</li>' : '') +
+        (p.id === 'enterprise' ? '<li>API Access & Integrations</li>' : '') +
+      '</ul>' +
+      '<button class="plan-btn" ' + (isCurrent ? 'disabled' : '') + ' onclick="window.selectPlan(\'' + p.id + '\')">' +
+        (isCurrent ? 'Current Plan' : 'Choose ' + p.name) +
+      '</button>' +
+    '</div>';
+  }).join('');
+}
+
+window.selectPlan = (planId) => {
+  SELECTED_PLAN = planId;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector('[data-tab="capabilities"]').classList.add('active');
+  document.getElementById('capabilities').classList.add('active');
+  renderCapabilities();
+  toast('Plan selected: ' + planId.toUpperCase());
+};
+
+// Load capabilities
+async function loadCapabilities() {
+  try {
+    const snap = await getDocs(collection(db, 'capabilities'));
+    CAPABILITIES = [];
+    snap.forEach(d => CAPABILITIES.push({ id: d.id, ...d.data() }));
+    renderCapabilities();
+  } catch(e) {
+    document.getElementById('capsContainer').innerHTML = '<div class="empty">Capabilities load error: ' + e.message + '</div>';
+  }
+}
+
+function renderCapabilities() {
+  const container = document.getElementById('capsContainer');
+  if (!CAPABILITIES.length) { container.innerHTML = '<div class="empty">No capabilities</div>'; return; }
+
+  const plan = PLANS.find(p => p.id === SELECTED_PLAN);
+  const maxCaps = plan ? plan.max_capabilities : 3;
+  const allowed = maxCaps === -1 ? 999 : maxCaps;
+
+  // Group by category
+  const groups = {};
+  CAPABILITIES.forEach(c => {
+    if (!groups[c.category]) groups[c.category] = [];
+    groups[c.category].push(c);
+  });
+
+  let html = '';
+  for (const [cat, caps] of Object.entries(groups)) {
+    html += '<div class="category-section">';
+    html += '<div class="category-title">' + cat + ' (' + caps.length + ')</div>';
+    html += '<div class="caps-grid">';
+    caps.forEach(c => {
+      const isSel = SELECTED_CAPS.has(c.code);
+      const planOrder = { free:0, starter:1, pro:2, enterprise:3 };
+      const locked = planOrder[c.min_plan] > planOrder[SELECTED_PLAN];
+      html += '<label class="cap-item ' + (isSel ? 'selected' : '') + ' ' + (locked ? 'locked' : '') + '">' +
+        '<input type="checkbox" ' + (isSel ? 'checked' : '') + ' ' + (locked ? 'disabled' : '') +
+          ' onchange="window.toggleCap(\'' + c.code + '\', this.checked)">' +
+        '<div style="flex:1"><div class="cap-name">' + c.name + '</div><div class="cap-cat">min: ' + c.min_plan + '</div></div>' +
+      '</label>';
+    });
+    html += '</div></div>';
+  }
+
+  html += '<div class="summary-bar">' +
+    '<div class="summary-info">Plan: <strong>' + SELECTED_PLAN.toUpperCase() + '</strong> • Selected: <strong id="selCount">' + SELECTED_CAPS.size + '</strong> / ' + (allowed > 900 ? '∞' : allowed) + '</div>' +
+    '<button class="save-btn" onclick="window.saveSubscription()">💾 Save Subscription</button>' +
+  '</div>';
+
+  container.innerHTML = html;
+}
+
+window.toggleCap = (code, checked) => {
+  const plan = PLANS.find(p => p.id === SELECTED_PLAN);
+  const maxCaps = plan ? plan.max_capabilities : 3;
+  const allowed = maxCaps === -1 ? 999 : maxCaps;
+
+  if (checked) {
+    if (SELECTED_CAPS.size >= allowed) {
+      toast('Plan limit reached: ' + allowed + ' capabilities max', true);
+      renderCapabilities();
+      return;
+    }
+    SELECTED_CAPS.add(code);
+  } else {
+    SELECTED_CAPS.delete(code);
+  }
+  renderCapabilities();
+};
+
+window.saveSubscription = async () => {
+  if (SELECTED_CAPS.size === 0) { toast('Select at least 1 capability', true); return; }
+  const plan = PLANS.find(p => p.id === SELECTED_PLAN);
+  try {
+    const subData = {
+      orgId: CURRENT_ORG,
+      plan: SELECTED_PLAN,
+      status: 'active',
+      price_etb: plan ? plan.price_etb : 0,
+      billing_cycle: 'monthly',
+      activated_capabilities: Array.from(SELECTED_CAPS),
+      updated_at: new Date().toISOString(),
+      next_billing: plan && plan.price_etb > 0 ? new Date(Date.now() + 30*24*60*60*1000).toISOString() : null
+    };
+    await setDoc(doc(db, 'subscriptions', CURRENT_ORG), subData, { merge: true });
+    CURRENT_SUB = subData;
+    toast('✅ Subscription saved! ' + SELECTED_CAPS.size + ' capabilities activated');
+    loadMySub();
+  } catch(e) {
+    toast('Save error: ' + e.message, true);
+  }
+};
+
+// My Subscription
+async function loadMySub() {
+  try {
+    const d = await getDoc(doc(db, 'subscriptions', CURRENT_ORG));
+    const container = document.getElementById('mySubContainer');
+    if (!d.exists()) {
+      container.innerHTML = '<div class="empty">No active subscription for ' + CURRENT_ORG + '<br><br><button class="save-btn" onclick="document.querySelector(\'[data-tab=pricing]\').click()">View Plans</button></div>';
+      return;
+    }
+    CURRENT_SUB = d.data();
+    SELECTED_PLAN = CURRENT_SUB.plan;
+    SELECTED_CAPS = new Set(CURRENT_SUB.activated_capabilities || []);
+
+    container.innerHTML = '<div class="plan-card current" style="margin-bottom:20px">' +
+      '<h3>' + CURRENT_SUB.plan.toUpperCase() + ' Plan</h3>' +
+      '<div class="plan-price">ETB ' + (CURRENT_SUB.price_etb || 0).toLocaleString() + '<span>/month</span></div>' +
+      '<div class="summary-info" style="margin-top:12px">' +
+        'Status: <strong style="color:#10b981">' + CURRENT_SUB.status + '</strong><br>' +
+        'Org ID: ' + CURRENT_SUB.orgId + '<br>' +
+        'Next billing: ' + (CURRENT_SUB.next_billing ? new Date(CURRENT_SUB.next_billing).toLocaleDateString() : 'N/A') +
+      '</div></div>' +
+      '<div class="category-title">Activated Capabilities (' + SELECTED_CAPS.size + ')</div>' +
+      '<div class="caps-grid">' +
+        Array.from(SELECTED_CAPS).map(code => {
+          const cap = CAPABILITIES.find(c => c.code === code);
+          return '<div class="cap-item selected"><span style="color:#10b981">✓</span><span class="cap-name">' + (cap ? cap.name : code) + '</span></div>';
+        }).join('') +
+      '</div>';
+    renderPlans();
+  } catch(e) {
+    document.getElementById('mySubContainer').innerHTML = '<div class="empty">Error: ' + e.message + '</div>';
+  }
+}
+
+// Init
+(async () => {
+  await loadPlans();
+  await loadCapabilities();
+  await loadMySub();
+})();
+</script>
+<script src="/back-button.js"></script>
+</body>
+</html>

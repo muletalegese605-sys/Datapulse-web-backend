@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -18,6 +19,7 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,  # Conflict sirreeffame: "*" bakka bu'ee origins fayyadameera
+=======
 from datetime import datetime, timedelta
 import os
 from fastapi import Depends, FastAPI, HTTPException, status
@@ -43,11 +45,13 @@ app.add_middleware(
         "https://datapulseapp-20237.web.app",
         "http://localhost:3000",
     ],
+>>>>>>> f14332ce8a4ea191a384224009b46598e5ac991e
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+<<<<<<< HEAD
 # ============ GLOBAL ERROR HANDLER ============
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
@@ -257,7 +261,10 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
 
-
+@app.post("/register")
+def register_user(user_data: dict):
+    return {"message": "User registered", "data": user_data}
+=======
 # --- Security & Authentication Setup ---
 SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret-key-change-in-render")
 ALGORITHM = "HS256"
@@ -377,3 +384,4 @@ def get_records(
 ):
     records = db.query(models.Record).all()
     return {"success": True, "records": records, "count": len(records)}
+>>>>>>> f14332ce8a4ea191a384224009b46598e5ac991e
