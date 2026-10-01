@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-<script>document.documentElement.style.opacity="0";</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#0b0f19">
@@ -2098,6 +2097,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if(!document.getElementById('goPublicBtn')){
             var btn = document.createElement('button');
             btn.id = 'goPublicBtn';
+            btn.innerHTML = '🌐 Go to Public Dashboard';
             btn.style.cssText = 'position:fixed; bottom:80px; right:20px; padding:12px 20px; background:#10b981; border:none; border-radius:10px; color:#000; font-weight:bold; cursor:pointer; z-index:10000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-family:sans-serif;';
             btn.onclick = function() { window.location.href = 'index.html?admin=true'; };
             document.body.appendChild(btn);
@@ -2128,6 +2128,7 @@ document.addEventListener('DOMContentLoaded', function() {
             overlay.remove();
             var btn = document.createElement('button');
             btn.id = 'goPublicBtn';
+            btn.innerHTML = '🌐 Go to Public Dashboard';
             btn.style.cssText = 'position:fixed; bottom:80px; right:20px; padding:12px 20px; background:#10b981; border:none; border-radius:10px; color:#000; font-weight:bold; cursor:pointer; z-index:10000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-family:sans-serif;';
             btn.onclick = function() { window.location.href = 'index.html?admin=true'; };
             document.body.appendChild(btn);
@@ -2168,6 +2169,7 @@ function showDashboard() {
     if(!document.getElementById('goPublicBtn')){
         var btn = document.createElement('button');
         btn.id = 'goPublicBtn';
+        btn.innerHTML = '🌐 Go to Public Dashboard';
         btn.style.cssText = 'position:fixed; bottom:80px; right:20px; padding:12px 20px; background:#10b981; border:none; border-radius:10px; color:#000; font-weight:bold; cursor:pointer; z-index:10000; box-shadow:0 4px 10px rgba(0,0,0,0.5); font-family:sans-serif;';
         btn.onclick = function() { window.location.href = 'index.html?admin=true'; };
         document.body.appendChild(btn);
@@ -2257,14 +2259,13 @@ document.addEventListener('DOMContentLoaded', function(){
       var div = document.createElement('div');
       div.id = 'adminHelpButtons';
       div.style.cssText = 'position:fixed; bottom:140px; left:20px; z-index:9998; display:flex; flex-direction:column; gap:6px;';
+      div.innerHTML = '<button onclick="window.open(\'index.html\',\'_blank\')" style="padding:8px 12px; background:#10b981; border:none; border-radius:8px; color:#000; font-weight:bold; font-size:11px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.4);">📖 Open App</button>';
       document.body.appendChild(div);
     }
   }, 1500);
 });
 </script>
 
-<script type="module" src="/auth-guard.js"></script>
-<script src="/back-button.js"></script>
 </body>
 </html>
 
@@ -2273,16 +2274,19 @@ document.addEventListener('DOMContentLoaded', function(){
 document.addEventListener('DOMContentLoaded', function() {
     const elements = document.querySelectorAll('button, a, div, span');
     elements.forEach(el => {
+        if (el.innerText && (el.innerText.trim() === 'Sign Out' || el.innerText.trim() === 'Go to Public Dashboard')) {
             el.remove(); // Buttonicha guutummaatti haqa
         }
     });
 });
 </script>
 
+<!-- Remove Go to Public Dashboard Button -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const elements = document.querySelectorAll('button, a, div, span');
     elements.forEach(el => {
+        if (el.innerText && el.innerText.includes('Go to Public Dashboard')) {
             let target = el;
             // Yoo elementichi button ykn link hin taane, parent isaa barbaadi
             if (el.tagName !== 'BUTTON' && el.tagName !== 'A') {

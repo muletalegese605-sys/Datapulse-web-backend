@@ -6,6 +6,9 @@ import os
 # Render irraa DATABASE_URL fudhachiisi. Yoo argamuu baate, SQLite fayyadami.
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./datapulse_local.db")
 
+# Debug: URL maal ta'uu isaa ilaaluuf
+print(f"DATABASE URL IS: {SQLALCHEMY_DATABASE_URL}")
+
 # Yoo URL'n "postgres://" yookaan "postgresql://" ta'e, "postgresql+pg8000://" godhi
 if SQLALCHEMY_DATABASE_URL and SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
     SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql+pg8000://", 1)
