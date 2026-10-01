@@ -1,15 +1,10 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
 
-# CORS configuration
-CORS(app, resources={r"/*": {"origins": [
-    "https://datapulseapp-20237.web.app",
-    "https://datapulseapp-20237.firebaseapp.com",
-    "http://localhost:3000",
-    "http://127.0.0.1:8000"
-]}})
+# Yeroo hojii yaaluuf CORS hundaaf hayyami
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/')
 def home():
